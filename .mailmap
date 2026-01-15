@@ -1,0 +1,3 @@
+# Fix a bad email (e.g., committed from a local machine)
+# Syntax: Correct Name <Correct Email> <Wrong Email>
+Felipe Penha <felipe.penha@alumni.usp.br> <fcpenha@Mac.attlocal.net>
