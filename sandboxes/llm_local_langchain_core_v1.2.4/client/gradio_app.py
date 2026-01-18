@@ -75,19 +75,19 @@ def chat(message: str, history: List[Tuple[str, str]]) -> str:
 
                             # Capture the leaked string if it's a SecretStr or string (Env Var Leak)
                             if hasattr(loaded_obj, "get_secret_value"):
-                                leaked_info.append(
-                                    f"LEAKED SECRET: {loaded_obj.get_secret_value()}"
-                                )
+                                val = loaded_obj.get_secret_value()
+                                print(f"LEAKED SECRET: {val}", flush=True)
+                                leaked_info.append(f"LEAKED SECRET: {val}")
                             else:
-                                leaked_info.append(
-                                    f"DESERIALIZED OBJECT: {str(loaded_obj)}"
-                                )
+                                val = str(loaded_obj)
+                                print(f"DESERIALIZED OBJECT: {val}", flush=True)
+                                leaked_info.append(f"DESERIALIZED OBJECT: {val}")
 
                             # Trigger execution for PromptTemplate or other runnables
                             if hasattr(loaded_obj, "format"):
                                 try:
                                     result = loaded_obj.format()
-                                    print(f"🚀 Executed format() result: {result}")
+                                    print(f"RCE RESULT: {result}", flush=True)
                                     leaked_info.append(f"RCE RESULT: {result}")
                                 except Exception as exec_err:
                                     print(f"⚠️ Execution failed: {exec_err}")
