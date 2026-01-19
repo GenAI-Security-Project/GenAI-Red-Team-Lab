@@ -50,7 +50,7 @@ You can also create a more customized interaction with the sandbox by adding a n
 
 ## Adding New Sandboxes
 
-The core logic of a "sandbox" in this handbook is a containerized application that exposes an API (HTTP endpoint) to a shared network. This allows exploitation tools running on the host or in other containers to interact with it.
+The core logic of a "sandbox" is a containerized application that exposes an API (HTTP endpoint) to a shared network. This allows exploitation tools running on the host or in other containers to interact with it.
 
 To add a new sandbox:
 

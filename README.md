@@ -1,6 +1,6 @@
-# GenAI Red Team Handbook
+# GenAI Red Team Lab
 
-The [GenAI Red Team Initiative Repository](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Initiative) is part of the OWASP GenAI Security Project. It is a companion for the [GenAI Red Team Initiative](https://genai.owasp.org/initiatives/#ai-redteaming) documents, such as the **GenAI Red Teaming Handbook**.
+The [GenAI Red Team Lab](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Lab/) is part of the OWASP GenAI Security Project. It is a companion for the [GenAI Red Team Initiative](https://genai.owasp.org/initiatives/#ai-redteaming) documents, such as the **GenAI Red Teaming Manual**.
 
 This repository provides a collection of resources, sandboxes, and examples designed to facilitate Red Teaming exercises for Generative AI systems. It aims to help security researchers and developers test, probe, and evaluate the safety and security of LLM applications.
 
