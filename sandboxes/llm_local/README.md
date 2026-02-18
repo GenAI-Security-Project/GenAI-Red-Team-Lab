@@ -31,19 +31,24 @@ graph TB
     
     subgraph "External Services"
         LLM[Language Model Service<br/>OpenAI/Anthropic/etc.]
+        MCP[LLM Tools MCP servers]
     end
     
     Client -->|HTTPS| API
     API --> AppLogic
     AppLogic -->|API Call| LLM
     LLM -->|Response| AppLogic
+    LLM --> | API Call | MCP
+    MCP -->|Response| LLM
     AppLogic --> API
     API -->|Response| Client
+
     
     style Client fill:#e1f5ff
     style API fill:#fff4e1
     style AppLogic fill:#fff4e1
     style LLM fill:#ffe1f5
+    style MCP fill:#ffe1f5
 ```
 
 ### Local Mock Setup (This Template)
@@ -58,6 +63,11 @@ graph LR
     subgraph "Application Server (Container)"
         MockAPI[Mock API Gateway<br/>FastAPI :8000]
         MockLogic[Mock App Logic<br/>app/mocks/openai.py]
+        MockMCPLogic[Mock MCP App Logic<br/>app/mocks/openai_tool.py]
+    end
+
+    subgraph "MCP Server (Container)"
+        MockMCP[Mock MCP Server<br/>FastMCP :8000]
     end
     
     subgraph "External Services (Local Host)"
@@ -73,13 +83,21 @@ graph LR
     Model --> Ollama
     Ollama -->|Response| MockLogic
     MockLogic --> MockAPI
+    MockMCPLogic --> MockAPI
+    MockAPI --> MockMCPLogic
     MockAPI -->|Response| GradioUI
     MockAPI -->|Response| TestClient
+    MockMCPLogic -->|HTTP| MockMCP
+    MockMCPLogic -->|HTTP| Ollama
+    Ollama -->|Response| MockMCPLogic
+    MockMCP -->|Response| MockMCPLogic
     
     style GradioUI fill:#e1f5ff
     style TestClient fill:#e1f5ff
     style MockAPI fill:#fff4e1
     style MockLogic fill:#fff4e1
+    style MockMCP fill:#ff004e1
+    style MockMCPLogic fill:#fff4e1
     style Ollama fill:#ffe1f5
     style Model fill:#ffe1f5
 ```
@@ -87,6 +105,7 @@ graph LR
 **Mapping to Production:**
 - **Client Environment** → Local browser/scripts (instead of remote client)
 - **Application Server** → Containerized mock API (instead of cloud deployment)
+- **MCP Server** → Containerized mock MCP Server (instead of cloud deployment)
 - **External Services** → Local Ollama + model (instead of cloud LLM/VectorDB)
 
 ## Threat Modeling
@@ -123,6 +142,18 @@ Because this template uses Ollama as the default backend, you can use **any mode
 - **GPT-OSS** (Various community implementations)
 
 To use a different model, simply pull it with `ollama pull <model_name>` and update `config/model.toml`.
+
+### For MCP 
+Due to variations in how different LLMs handle Model Context Protocol (MCP) tool calls and message framing, syntax support is currently limited. Using unsupported models may result in parsing errors or failed tool executions.
+
+#### Supported Models
+
+The following models have been verified to function correctly with the current MCP implementation:
+
+- **GPT-OSS** (Various community implementations)
+- **QWEN3** (Alibaba)
+
+If you are attempting to use a model not listed above, please be aware that the internal syntax for tool negotiation may not align, potentially requiring manual configuration or custom prompt wrapping.
 
 ## Configuration
 
@@ -210,6 +241,10 @@ Run `make help` to see all commands:
 - `make ollama-pull` - Pull gpt-oss:20b model
 - `make ollama-serve` - Start Ollama (checks if already running)
 
+**MCP Server**
+- `make run-mcp` - launch MCP container
+- `make stop-mcp` - Stop and remove the MCP container
+
 ## Testing the Mock API
 
 ### Health Check
@@ -256,12 +291,15 @@ Opens at `http://localhost:7860` with a user-friendly chat UI.
 │   ├── model.toml           # Model settings (default model, Ollama config)
 │   └── prompts.toml         # Test prompts for automated testing
 ├── data/                     # Placeholder for document files
+├── mcp/                     # MCP Server Directory
+    ├── main.py               # Mock MCP Server for adding new tools
 ├── app/                      # FastAPI mock server package
 │   ├── __init__.py
 │   ├── main.py              # FastAPI entry point
 │   └── mocks/               # Modular mock service implementations
 │       ├── __init__.py
 │       ├── openai.py        # Mock OpenAI API using Ollama
+        ├── openai_tool.py   # Mock API with Tool Call using Ollama
 │       └── README.md        # Guide for adding new mocks
 ├── client/                   # Client scripts
 │   ├── main.py              # Automated test runner

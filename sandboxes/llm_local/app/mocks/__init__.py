@@ -9,5 +9,6 @@ Available Mocks:
 """
 
 from app.mocks.openai import router as openai_router
+from app.mocks.openai_tool import router as openai_tool_router
 
-__all__ = ["openai_router"]
+__all__ = ["openai_router", "openai_tool_router"]

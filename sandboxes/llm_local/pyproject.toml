@@ -6,7 +6,9 @@ readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi[all]>=0.121.3",
+    "fastmcp>=2.14.4",
     "gradio>=5.50.0",
+    "mcp[http]>=1.26.0",
     "mirascope>=1.25.7",
     "openai>=2.8.1",
     "requests>=2.32.5",

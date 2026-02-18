@@ -8,7 +8,7 @@ from typing import Dict
 
 from fastapi import FastAPI
 
-from app.mocks import openai_router
+from app.mocks import openai_router, openai_tool_router
 
 app = FastAPI(
     title="LLM Mock API Server",
@@ -29,7 +29,7 @@ def health_check() -> Dict[str, str]:
 
 # Mount mock service routers
 app.include_router(openai_router, tags=["OpenAI Mock"])
-
+app.include_router(openai_tool_router, tags=["OpenAI Tool Mock"])
 
 # To add more mock services in the future:
 # 1. Create a new module in app/mocks/ (e.g., pinecone_mock.py)
