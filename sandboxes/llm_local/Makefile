@@ -49,7 +49,7 @@ build:
 
 up:
 	@echo "🚀 Starting container..."
-	podman run -d --name app_container -p 8000:8000 -v ./data:/app/data --network sec_test_net app_container_build
+	podman run -d --name app_container -p 8000:8000 -v ./data:/app/data --network sec_test_net app_container_build 
 	@echo "✅ Container started!"
 
 down:
@@ -97,7 +97,7 @@ test: sync lock clean ollama-pull ollama-serve build up
 test-client: sync lock clean ollama-pull ollama-serve build up test
 	podman exec app_container uv run python client/main.py
 
-run-gradio-headless: sync lock clean ollama-pull ollama-serve build up test test-client
+run-gradio-headless: sync lock clean ollama-pull ollama-serve build up test test-client run-mcp
 	@echo "🧹 Stopping any existing Gradio instance..."
 	@-podman rm -f gradio_container 2>/dev/null || true
 	@echo "🚀 Starting Gradio interface (containerized)..."
@@ -114,3 +114,19 @@ stop-gradio:
 	@echo "🛑 Stopping Gradio..."
 	@-podman rm -f gradio_container 2>/dev/null || true
 	@echo "✅ Gradio stopped!"
+
+run-mcp:
+	@echo "🧹 Stopping any existing Gradio instance..."
+	@-podman rm -f mcp_container 2>/dev/null || true
+	@echo "🚀 Starting MCP server (containerized)..."
+	@podman run -d --name mcp_container \
+		--replace --network sec_test_net \
+		 --entrypoint uv \
+		 app_container_build \
+		 run python mcp/main.py
+	@echo "✅ MCP Server started in container 'mcp_container'"
+
+stop-mcp:
+	@echo "🛑 Stopping MCP Server..."
+	@-podman rm -f mcp_container 2>/dev/null || true
+	@echo "✅ MCP Server stopped!"

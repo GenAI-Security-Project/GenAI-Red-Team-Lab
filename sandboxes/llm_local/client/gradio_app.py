@@ -23,6 +23,12 @@ if "OPENAI_API_KEY" not in os.environ:
 if "OPENAI_BASE_URL" not in os.environ:
     os.environ["OPENAI_BASE_URL"] = "http://localhost:8000/v1"
 
+prompt_examples = [
+    ["Hello, are you working?", "Base"],
+    ["Tell me about large language models.", "Base"],
+    ["What tools do you have access to?", "With MCP Tools"],
+    ["What is the weather today?", "With MCP Tools"],
+]
 
 class LLMClientCall(OpenAICall):
     """Mirascope OpenAI call wrapper for the Gradio interface.
@@ -38,8 +44,12 @@ class LLMClientCall(OpenAICall):
 
     call_params = OpenAICallParams(model=config["default"]["model"])
 
+def route_call(version: str):
+    os.environ["OPENAI_BASE_URL"] = os.environ["OPENAI_BASE_URL"].replace("/tool","")
+    if version == "With MCP Tools":
+        os.environ["OPENAI_BASE_URL"] += "/tool"
 
-def chat_with_llm(message: str, history: List[Tuple[str, str]]) -> str:
+def chat_with_llm(message: str, history: List[Tuple[str, str]], version: str) -> str:
     """Process user message through the mock LLM API and return the response.
 
     Args:
@@ -52,6 +62,7 @@ def chat_with_llm(message: str, history: List[Tuple[str, str]]) -> str:
     """
     try:
         call = LLMClientCall(user_message=message)
+        route_call(version)
         response = call.call()
         return response.content
     except Exception as e:
@@ -61,18 +72,22 @@ def chat_with_llm(message: str, history: List[Tuple[str, str]]) -> str:
         )
 
 
-# Create the Gradio interface
-demo = gr.ChatInterface(
-    fn=chat_with_llm,
-    title="🤖 LLM Mock API - Chat Interface",
-    description="Chat with a local Ollama model through the mock OpenAI API.",
-    examples=[
-        "Hello, are you working?",
-        "What can you help me with?",
-        "Tell me about large language models.",
-    ],
-    theme=gr.themes.Soft(),
-)
+with gr.Blocks(theme=gr.themes.Soft()) as demo:
+    gr.Markdown("# 🤖 LLM Mock API")
+    
+    version_toggle = gr.Radio(
+            ["Base", "With MCP Tools"], 
+            label="Select AI Version", 
+            value="Base"
+        )
+
+    gr.ChatInterface(
+        fn=chat_with_llm,
+        additional_inputs=[version_toggle],
+        title="🤖 LLM Mock API - Chat Interface",
+        description="Chat with a local Ollama model through the mock OpenAI API.",
+        examples=prompt_examples,
+    )
 
 if __name__ == "__main__":
     demo.launch(
