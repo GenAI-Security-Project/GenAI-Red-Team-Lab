@@ -1,0 +1,23 @@
+# sandboxes/Langflow-CVE-2024-37014/Containerfile
+FROM python:3.11-slim
+
+# System dependencies
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Pinning vulnerable Langflow and its specific dependencies
+RUN pip install --no-cache-dir \
+    langflow==1.0.12 \
+    "setuptools>=45,<81" \
+    "typer==0.9.0" \
+    "click==8.1.7"
+
+# Expose Langflow UI/API port
+EXPOSE 7860
+
+# Podman/Docker entrypoint
+CMD ["langflow", "run", "--host", "0.0.0.0", "--port", "7860"]

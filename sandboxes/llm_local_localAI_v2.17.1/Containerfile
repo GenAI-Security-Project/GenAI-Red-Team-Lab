@@ -1,0 +1,21 @@
+FROM docker.io/library/ubuntu:22.04
+
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    curl \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+RUN curl -fsSL \
+    https://github.com/mudler/LocalAI/releases/download/v2.17.1/local-ai-Linux-x86_64 \
+    -o local-ai \
+    && chmod +x local-ai
+
+RUN mkdir -p /app/models
+
+EXPOSE 8080
+
+ENTRYPOINT ["/app/local-ai"]
+CMD ["--address", "0.0.0.0:8080", "--models-path", "/app/models"]
