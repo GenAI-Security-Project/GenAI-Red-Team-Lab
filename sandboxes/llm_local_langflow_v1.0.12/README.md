@@ -1,19 +1,9 @@
-# Langflow Sandbox (CVE-2024-37014)
+# Langflow Sandbox 
 
 This sandbox environment deploys a vulnerable instance of Langflow (v1.0.12). It is designed for security researchers to practice exploitation techniques against GenAI orchestration frameworks, specifically focusing on unauthenticated Remote Code Execution (RCE).
 
 ---
 
-## Vulnerability Overview: CVE-2024-37014
-
-- **Vulnerability Type:** Path Traversal / Remote Code Execution (RCE)
-- **Affected Component:** `/api/v1/files/upload` endpoint
-
-### Description
-
-Langflow versions prior to 1.0.13 fail to properly sanitize file uploads. An attacker can leverage this to upload malicious scripts or overwrite sensitive files, leading to RCE on the host system or container.
-
----
 
 ## Prerequisites
 

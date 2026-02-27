@@ -1,37 +1,40 @@
-IMAGE_NAME     := localai
-CONTAINER_NAME := localai
+IMAGE_NAME     := invokeai
+CONTAINER_NAME := invokeai
+PORT           := 9090
+NETWORK        := podman
 
-.PHONY: all build run attack stop clean
+.PHONY: all build run stop clean ip
 
-## Build the container image
+all: build run
+
 build:
 	podman build -f Containerfile -t $(IMAGE_NAME) .
 
-## Start the vulnerable LocalAI instance
 run:
 	podman run -d \
 		--name $(CONTAINER_NAME) \
 		--network host \
-		localhost/$(IMAGE_NAME)
+		-p $(PORT):$(PORT) \
+		$(IMAGE_NAME)
 	@echo ""
-	@echo "  [+] LocalAI v2.17.1 is running at http://localhost:8080"
-	@echo "  [+] CVE-2024-6868 (tarslip / arbitrary write -> RCE) is exploitable."
+	@echo "  [+] InvokeAI v5.3.0 running at http://localhost:$(PORT)"
+	@echo "  [+] CVE-2024-12029 (RCE via model deserialization) is exploitable."
+	@echo "  [+] Container IP (use this for --ip when attacking):"
+	@podman inspect $(CONTAINER_NAME) \
+		--format '{{range .NetworkSettings.Networks}}  [+] Container IP : {{.IPAddress}}{{end}}'
 	@echo ""
 
-## Build + run (default target)
-all: build run
+ip:
+	@podman inspect $(CONTAINER_NAME) \
+		--format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
 
-## Alias used by exploitation scripts to spin up the target
-attack: all
-
-## Stop and remove the running container
 stop:
 	podman stop $(CONTAINER_NAME) 2>/dev/null || true
 	podman rm   $(CONTAINER_NAME) 2>/dev/null || true
 
-## Stop the container and delete the image
 clean: stop
 	podman rmi $(IMAGE_NAME) 2>/dev/null || true
+
 format:
 	@echo "[*] Running black formatter..."
 	@if command -v uv >/dev/null 2>&1; then \
@@ -50,4 +53,3 @@ format:
 		echo "  [-] isort not found. Install with: pip install isort"; \
 	fi
 	@echo "[+] Formatting complete!"
-
