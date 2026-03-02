@@ -9,18 +9,28 @@ This repository provides a collection of resources, sandboxes, and examples desi
 
 ```text
 .
+├── CONTRIBUTING.md
 ├── exploitation
-│   ├── agent0
-│   ├── example
-│   ├── garak
-│   ├── LangGrinch
-│   └── promptfoo
-└── sandboxes
-    ├── RAG_local
-    ├── llm_local
-    └── llm_local_langchain_core_v1.2.4
-    └── agentic_local_n8n_v1.121.2
-    └── mcp_local
+│   ├── agent0
+│   ├── example
+│   ├── garak
+│   ├── LangGrinch
+│   ├── n8n_RCE_via_file_write
+│   ├── Ni8mare
+│   ├── openclaw
+│   └── promptfoo
+├── LICENSE
+├── README.md
+├── sandboxes
+│   ├── agentic_local_n8n_v1.65.0
+│   ├── llm_local
+│   ├── llm_local_langchain_core_v1.2.4
+│   ├── mcp_local
+│   ├── RAG_local
+│   └── README.md
+└── tutorials
+    ├── community_resources.md
+    └── README.md
 ```
 
 ## Architecture
@@ -59,7 +69,7 @@ This project supports **Linux** and **macOS**. Windows users are encouraged to u
 *   **[uv](https://github.com/astral-sh/uv)**
 *   **[Make](https://www.gnu.org/software/make/)**
 
-Required for Promptfoo:
+Required for Promptfoo exploitation-only:
 
 *   **[Node.js (v18+)](https://nodejs.org/)**
 *   **[npx](https://docs.npmjs.com/cli/v10/commands/npx)**
@@ -158,6 +168,12 @@ uv --version
 
 *   **[n8n RCE via File Write Exploitation](exploitation/n8n_RCE_via_file_write/README.md)**
     *   **Summary**: A complete, end-to-end Python exploitation script for **CVE-2026-21877** targeting the vulnerable n8n sandbox. It demonstrates workflow injection to exploit the unrestricted `Execute Command` node.
+
+### `tutorials/`
+
+*   **[Community Resources for Agentic AI Red Teaming](etutorials/community_resources.md)**
+    * **Summary**: A curated, professional list of community resources to help practitioners plan, execute, and improve agentic AI red teaming efforts.
+
 
 
 ## Contribution Guide
