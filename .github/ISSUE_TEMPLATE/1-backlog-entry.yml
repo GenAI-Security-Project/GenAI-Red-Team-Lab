@@ -1,0 +1,40 @@
+name: Backlog Entry
+description: Add a new entry to the backlog.
+title: "[Backlog]: "
+labels: ["backlog"]
+type: feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to fill out this issue!
+  - type: dropdown
+    id: sandbox-bool
+    attributes:
+      label: Does your backlog entry involve creating new sandboxes?
+      multiple: true
+      options:
+        - Yes
+        - No
+  - type: dropdown
+    id: exploitation-bool
+    attributes:
+      label: Does your backlog entry involve creating new exploitation code and / or tutorials?
+      multiple: true
+      options:
+        - Yes
+        - No
+  - type: textarea
+    id: description
+    attributes:
+      label: Description?
+      description: Provide as much detail as possible.
+    validations:
+      required: true
+  - type: input
+    id: cve
+    attributes:
+      label: CVE List
+      description: If this entry involves introducing or exploiting CVEs, please list their codes below (comma separated).
+    validations:
+      required: false
