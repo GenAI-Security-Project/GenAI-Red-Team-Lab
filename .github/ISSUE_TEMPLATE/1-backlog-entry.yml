@@ -8,22 +8,25 @@ body:
     attributes:
       value: |
         Thank you for taking the time to fill out this issue!
-  - type: dropdown
-    id: sandbox-bool
+  - type: checkboxes
+    id: checklist
     attributes:
-      label: Does your backlog entry involve creating new sandboxes?
-      multiple: true
+      label: Confirmations
+      description: "Please confirm the following"
       options:
-        - Yes
-        - No
-  - type: dropdown
-    id: exploitation-bool
+        - label: Backlog entry requires creating new sandboxes.
+          required: false
+        - label: Backlog entry requires creating new exploitation code and / or tutorials.
+          required: false
+        - label: Backlog entry entry introduces and / or exploits CVEs.
+          required: false
+  - type: input
+    id: cve
     attributes:
-      label: Does your backlog entry involve creating new exploitation code and / or tutorials?
-      multiple: true
-      options:
-        - Yes
-        - No
+      label: CVE List
+      description: If this entry involves introducing and / or exploiting CVEs, please list their codes below (comma separated).
+    validations:
+      required: false
   - type: textarea
     id: description
     attributes:
@@ -31,10 +34,3 @@ body:
       description: Provide as much detail as possible.
     validations:
       required: true
-  - type: input
-    id: cve
-    attributes:
-      label: CVE List
-      description: If this entry involves introducing or exploiting CVEs, please list their codes below (comma separated).
-    validations:
-      required: false
