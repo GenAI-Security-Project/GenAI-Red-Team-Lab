@@ -1,0 +1,5 @@
+FROM docker.io/langflowai/langflow:1.0.12
+
+EXPOSE 7860
+
+CMD ["langflow", "run", "--host", "0.0.0.0", "--port", "7860"]
