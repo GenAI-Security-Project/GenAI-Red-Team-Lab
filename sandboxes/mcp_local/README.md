@@ -131,17 +131,6 @@ The threat model for this Local LLM architecture is available in the `threat_mod
    - **Note**: The containerized app accesses Ollama on the host via `host.containers.internal:11434`
 
 ## Supported Models
-Because this template uses Ollama as the default backend, you can use **any model supported by Ollama**. This includes a wide range of open-weights models perfect for testing different capabilities and safety filters:
-
-- **Llama 3** (Meta)
-- **Mistral / Mixtral** (Mistral AI)
-- **Gemma** (Google)
-- **Qwen** (Alibaba)
-- **DeepSeek** (DeepSeek)
-- **Phi-3** (Microsoft)
-- **GPT-OSS** (Various community implementations)
-
-To use a different model, simply pull it with `ollama pull <model_name>` and update `config/model.toml`.
 
 ### For MCP 
 Due to variations in how different LLMs handle Model Context Protocol (MCP) tool calls and message framing, syntax support is currently limited. Using unsupported models may result in parsing errors or failed tool executions.
@@ -154,6 +143,21 @@ The following models have been verified to function correctly with the current M
 - **QWEN3** (Alibaba)
 
 If you are attempting to use a model not listed above, please be aware that the internal syntax for tool negotiation may not align, potentially requiring manual configuration or custom prompt wrapping.
+
+The default configuration of this sandbox uses the [`gpt-oss:20b`](https://ollama.com/library/gpt-oss:20b) model, which is a 4-bit quantized (Q4) 20-billion (20B) parameter model. To ensure low-latency performance and prevent resource exhaustion, the following specifications are recommended:
+
+- Dedicated GPU Memory: 16 GB.
+- System Memory: 32 GB.
+- Storage: 14 GB available space.
+
+For Apple Silicon Macs, you can use the `gpt-oss:20b` model with the following specifications or better:
+
+- Chip: Apple M4 Pro.
+- Memory: 24 GB.
+- Storage: 14 GB available space.
+
+To use a different model, simply pull it with `ollama pull <model_name>` and update `config/model.toml` (see next subsection).
+
 
 ## Configuration
 
