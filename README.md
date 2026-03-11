@@ -1,6 +1,6 @@
 # GenAI Red Team Lab
 
-The [GenAI Red Team Lab](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Lab/) is part of the [OWASP GenAI Security Project](https://github.com/GenAI-Security-Project). It is a branch of the [GenAI Red Team Initiative](https://genai.owasp.org/initiatives/#ai-redteaming) that stands on its own, but it also serves as a companion for the initiative documents, such as the **GenAI Red Teaming Manual**.
+The [GenAI Red Team Lab](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Lab/) is part of the [OWASP GenAI Security Project](https://github.com/GenAI-Security-Project). It is a branch of the [GenAI Red Team Initiative](https://genai.owasp.org/initiatives/#ai-redteaming) that stands on its own, but it also serves as a companion for the initiative documents, such as the [GenAI Red Teaming Manual](https://genai.owasp.org/initiatives/#ai-redteaming).
 
 This repository provides a collection of sandboxes, exploitation code, and tutorials that exemplifies GenAI Red Teaming exercises. It aims to help security researchers and developers test, probe, and evaluate the safety and security of GenAI-based applications.
 
@@ -14,6 +14,11 @@ This is how we envision the [GenAI Red Team Lab](https://github.com/GenAI-Securi
     
     Additionally, these are easily adaptable for testing out new attacks against sandboxes.
 
+## Contact
+
+- **Code Workstream Leader for the [GenAI Red Team Initiative](https://genai.owasp.org/initiatives/#ai-redteaming)**:
+    
+    _Felipe Campos Penha ([felipe.penha@owasp.org](mailto:felipe.penha@owasp.org))_
 
 ## Directory Structure
 
@@ -184,6 +189,8 @@ uv --version
 *   **[Community Resources for Agentic AI Red Teaming](etutorials/community_resources.md)**
     * **Summary**: A curated, professional list of community resources to help practitioners plan, execute, and improve agentic AI red teaming efforts.
 
+*   **[Tools](tools.md)**
+    * **Summary**: A curated list of tools, organized by the phases defined in the [OWASP GenAI Red Teaming Manual](https://genai.owasp.org/initiatives/#ai-redteaming).
 
 
 ## Contribution Guide
