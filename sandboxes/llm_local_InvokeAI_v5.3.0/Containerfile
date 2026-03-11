@@ -1,0 +1,43 @@
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install InvokeAI 5.3.0 (CPU-only, no GPU required for lab)
+RUN pip install --no-cache-dir \
+    "invokeai==5.3.0" \
+    --extra-index-url https://download.pytorch.org/whl/cpu
+
+# Pin mediapipe to exactly 0.10.7 (minimum required by InvokeAI 5.3.0).
+# Newer mediapipe versions (e.g. 0.10.32) dropped the `solutions` API that
+# controlnet-aux 0.0.7 needs (mp.solutions.drawing_utils -> AttributeError).
+# 0.10.7 still ships the solutions submodule intact.
+RUN pip install --no-cache-dir --force-reinstall "mediapipe==0.10.7"
+
+# Re-pin numpy to 1.26.4 as required by InvokeAI 5.3.0.
+# mediapipe and other deps can silently pull in numpy 2.x, which causes a
+# binary ABI mismatch with scikit-image's compiled C extensions:
+#   "numpy.dtype size changed, may indicate binary incompatibility"
+RUN pip install --no-cache-dir --force-reinstall "numpy==1.26.4"
+
+# Pin picklescan to the vulnerable version (0.0.14).
+# This version fails to detect malicious pickle payloads inside .ckpt files,
+# which is the root cause of CVE-2024-12029.
+RUN pip install --no-cache-dir --force-reinstall "picklescan==0.0.14"
+
+EXPOSE 9090
+
+# InvokeAI 5.x does not accept --host/--port as CLI flags.
+# Host and port are configured via environment variables.
+ENV INVOKEAI_host=0.0.0.0
+ENV INVOKEAI_port=9090
+
+CMD ["invokeai-web"]
