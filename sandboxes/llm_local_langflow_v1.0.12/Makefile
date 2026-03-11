@@ -1,31 +1,37 @@
-# sandboxes/Langflow-CVE-2024-37014/Makefile
 IMAGE_NAME     := langflow
 CONTAINER_NAME := langflow
 PORT           := 7860
-
-.PHONY: all build run stop attack clean
-
+.PHONY: all build run stop attack clean logs
 all: build run
-
 build:
 	podman build -f Containerfile -t $(IMAGE_NAME) .
-
 run:
-	podman run -d \
+	@echo "[*] Starting $(CONTAINER_NAME) on port $(PORT)..."
+	@podman stop $(CONTAINER_NAME) > /dev/null 2>&1 || true
+	@podman rm   $(CONTAINER_NAME) > /dev/null 2>&1 || true
+	@if ss -tlnp 2>/dev/null | grep -q ":$(PORT) " || lsof -i :$(PORT) > /dev/null 2>&1; then \
+		echo "  [-] ERROR: Port $(PORT) is already in use by another process."; \
+		echo "      Free the port before retrying (e.g. kill the process using it)."; \
+		exit 1; \
+	fi
+	@if podman run -d \
 		--name $(CONTAINER_NAME) \
 		--network host \
-		$(IMAGE_NAME)
-	@echo ""
-	@echo "  [+] Langflow v1.0.12 running at http://localhost:$(PORT)"
-	@echo "  [+] CVE-2024-37014 (unauthenticated RCE) is exploitable."
-	@echo ""
-
+		$(IMAGE_NAME) > /dev/null 2>&1; then \
+		echo ""; \
+		echo "  [+] Langflow v1.0.12 running at http://localhost:$(PORT)"; \
+		echo ""; \
+	else \
+		echo "  [-] ERROR: Failed to start container."; \
+		echo "      Check logs with: make logs"; \
+		exit 1; \
+	fi
 attack: all
-
 stop:
 	podman stop $(CONTAINER_NAME) 2>/dev/null || true
 	podman rm   $(CONTAINER_NAME) 2>/dev/null || true
-
+logs:
+	podman logs -f $(CONTAINER_NAME)
 clean: stop
 	podman rmi $(IMAGE_NAME) 2>/dev/null || true
 format:
