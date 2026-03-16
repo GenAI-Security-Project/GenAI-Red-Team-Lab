@@ -1,11 +1,11 @@
 # Contribution Guide
 
-The [GenAI Red Team Initiative](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Initiative) repository is designed to be extensible. We encourage you to contribute new sandboxes or exploitation examples to cover more scenarios and automated Red Teaming tools.
+The [GenAI Red Team Lab](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Lab/) repository is designed to be extensible. We encourage you to contribute new sandboxes or exploitation examples to cover more scenarios and automated Red Teaming tools.
 
 
 ## Start Here!
 
-We follow a standard Open Source Software (OSS) contribution workflow. To contribute, please fork the original repository ([GenAI Red Team Initiative](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Initiative)), create a new branch for your feature or fix, and submit a Pull Request (PR) against the original repository for review.
+We follow a standard Open Source Software (OSS) contribution workflow. To contribute, please fork the original repository ([GenAI Red Team Lab](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Lab/)), create a new branch for your feature or fix, and submit a Pull Request (PR) against the original repository for review.
 
 ```mermaid
 graph LR

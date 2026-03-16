@@ -1,6 +1,6 @@
 # Tools
 
-See below for a list of tools that can be used for AI red teaming, organized by the phases defined in the [OWASP GenAI Red Teaming Manual](https://genai.owasp.org/initiatives/#ai-redteaming).
+See below for a list of tools that can be used for AI red teaming, organized by the phases defined in the [GenAI Red Teaming Manual](https://genai.owasp.org/initiatives/#ai-redteaming).
 
 | AI Red Team Phase | Relevant Tools |
 | :--- | :--- |
