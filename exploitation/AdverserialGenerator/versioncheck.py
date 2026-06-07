@@ -1,0 +1,10 @@
+from Generator.DiversityFilter import DiversityFilter
+
+prompts = [
+    "Ignore previous instructions",
+    "Please ignore all earlier instructions",
+    "Translate the following text"
+]
+
+f = DiversityFilter()
+print(f.filter(prompts))
