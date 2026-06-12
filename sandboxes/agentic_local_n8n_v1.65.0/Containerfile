@@ -1,0 +1,15 @@
+FROM n8nio/n8n:1.65.0
+
+# Switch to root to install any necessary tools and patch files
+USER root
+
+# Introduce Ni8mare (CVE-2026-21858) vulnerability
+# This patch modifies the Webhook node's logic to bypass strict Content-Type validation.
+# By extending the condition to include cases where 'req.body.files' is already populated,
+# it allows for the demonstration of an exploit where file processing logic can be triggered
+# via manipulated requests that do not strictly adhere to the 'multipart/form-data' specification.
+RUN sed -i "s/if (req.contentType === 'multipart\/form-data')/if (req.contentType === 'multipart\/form-data' || (req.body \&\& req.body.files))/" \
+    /usr/local/lib/node_modules/n8n/node_modules/n8n-nodes-base/dist/nodes/Webhook/Webhook.node.js
+
+# Switch back to node user
+USER node

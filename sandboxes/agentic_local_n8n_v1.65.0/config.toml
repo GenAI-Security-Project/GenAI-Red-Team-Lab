@@ -1,0 +1,17 @@
+# Configuration for n8n Sandbox Seeding
+
+[[users]]
+id = "admin-user-id-123"
+email = "admin@target.com"
+first_name = "Admin"
+# Placeholder hash (or valid if known), strictly for Ni8mare target
+password_hash = "$2b$10$P@ssw0rdHashExampleForDemo12345"
+global_role_id = "global:owner"
+
+[[users]]
+id = "redteam-user-id"
+email = "redteam@example.com"
+first_name = "Red"
+# Hash for "RedTeamPassword123!" (Confirmed compatible $2a$10$ format)
+password_hash = "$2a$10$bQTW6X17apnqvPG1XsYGoeqfK4L1EEIhZZDgr0LSJggRXmioX1Z0C"
+global_role_id = "global:owner"

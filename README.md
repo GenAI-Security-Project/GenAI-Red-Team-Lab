@@ -1,26 +1,52 @@
 # GenAI Red Team Lab
 
-The [GenAI Red Team Lab](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Lab/) is part of the OWASP GenAI Security Project. It is a companion for the [GenAI Red Team Initiative](https://genai.owasp.org/initiatives/#ai-redteaming) documents, such as the **GenAI Red Teaming Manual**.
+The [GenAI Red Team Lab](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Lab/) is part of the [OWASP GenAI Security Project](https://github.com/GenAI-Security-Project). It is a branch of the [OWASP GenAI Security Project – Red Teaming Initiative](https://genai.owasp.org/initiatives/#ai-redteaming) and it stands on its own, but it also serves as a companion for the initiative documents, such as the [GenAI Red Teaming Manual](https://genai.owasp.org/initiatives/#ai-redteaming).
 
-This repository provides a collection of resources, sandboxes, and examples designed to facilitate Red Teaming exercises for Generative AI systems. It aims to help security researchers and developers test, probe, and evaluate the safety and security of LLM applications.
+This repository provides a collection of sandboxes, exploitation code, and tutorials that exemplifies GenAI Red Teaming exercises. It aims to help security researchers and developers test, probe, and evaluate the safety and security of GenAI-based applications.
 
+This is how we envision the [GenAI Red Team Lab](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Lab/) being used:
+
+* **Sandboxes** may be simply recycled to model the core components of a larger GenAI system.
+    
+    Alternatively, security researchers and developers may want to adapt a sandbox for their own use case.
+
+* **Exploitation code and tutorials** may serve as learning tools for security researchers and enthusiasts alike.
+    
+    Additionally, these are easily adaptable for testing out new attacks against sandboxes.
+
+## Contact
+
+- **Code Workstream Leader for the [OWASP GenAI Security Project – Red Teaming Initiative](https://genai.owasp.org/initiatives/#ai-redteaming)**:
+    
+    _Felipe Campos Penha ([felipe.penha@owasp.org](mailto:felipe.penha@owasp.org))_
 
 ## Directory Structure
 
 ```text
 .
+├── CONTRIBUTING.md
 ├── exploitation
-│   ├── agent0
-│   ├── example
-│   ├── garak
-│   ├── LangGrinch
-│   └── promptfoo
-└── sandboxes
-    ├── RAG_local
-    ├── llm_local
-    └── llm_local_langchain_core_v1.2.4
-    └── agentic_local_n8n_v1.121.2
-    └── mcp_local
+│   ├── AdversarialGenerator
+│   ├── agent0
+│   ├── example
+│   ├── garak
+│   ├── LangGrinch
+│   ├── n8n_RCE_via_file_write
+│   ├── Ni8mare
+│   ├── openclaw
+│   └── promptfoo
+├── LICENSE
+├── README.md
+├── sandboxes
+│   ├── agentic_local_n8n_v1.65.0
+│   ├── llm_local
+│   ├── llm_local_langchain_core_v1.2.4
+│   ├── mcp_local
+│   ├── RAG_local
+│   └── README.md
+└── tutorials
+    ├── community_resources.md
+    └── README.md
 ```
 
 ## Architecture
@@ -59,7 +85,7 @@ This project supports **Linux** and **macOS**. Windows users are encouraged to u
 *   **[uv](https://github.com/astral-sh/uv)**
 *   **[Make](https://www.gnu.org/software/make/)**
 
-Required for Promptfoo:
+Required for Promptfoo exploitation-only:
 
 *   **[Node.js (v18+)](https://nodejs.org/)**
 *   **[npx](https://docs.npmjs.com/cli/v10/commands/npx)**
@@ -129,6 +155,8 @@ uv --version
 *   **[LangChain Local Sandbox (Vulnerable)](sandboxes/llm_local_langchain_core_v1.2.4/README.md)**
     *   **Summary**: A specialized version of the local sandbox configured with **langchain-core v1.2.4** to demonstrate **CVE-2025-68664** (LangGrinch). It contains an intentional insecure deserialization vulnerability for educational and testing purposes.
 
+*   **[n8n Vulnerable Sandbox](sandboxes/agentic_local_n8n_v1.65.0/README.md)**
+    *   **Summary**: A robust, containerized environment running **n8n v1.65.0**. This version is vulnerable to **four critical CVEs**: **Ni8mare** (CVE-2026-21858), **N8scape** (CVE-2025-68668), **CVE-2025-68613**, and **CVE-2026-21877**. The sandbox is pre-configured with dangerous nodes enabled (`NODES_EXCLUDE=""`) to allow red teamers to practice multiple exploitation techniques (RCE, sandbox escape, file write) safely in isolation.
 
 ### `exploitation/`
 
@@ -150,6 +178,23 @@ uv --version
 
 *   **[LangGrinch Exploitation](exploitation/LangGrinch/README.md)**
     *   **Summary**: A dedicated exploitation module for **CVE-2025-68664** in the LangChain sandbox. It demonstrates how to use prompt injection to force the LLM into generating a malicious JSON payload, which is then insecurely deserialized by the application to leak environment secrets.
+
+*   **[Ni8mare Exploitation](exploitation/Ni8mare/README.md)**
+    *   **Summary**: A demonstration of **CVE-2026-21858** (Ni8mare) against the n8n sandbox. It uses a custom Python script to simulate the critical "Unauthenticated Arbitrary File Read" vulnerability, extracting the SQLite database and dumping administrator credentials (hashed passwords) to prove full system compromise.
+
+*   **[n8n RCE via File Write Exploitation](exploitation/n8n_RCE_via_file_write/README.md)**
+    *   **Summary**: A complete, end-to-end Python exploitation script for **CVE-2026-21877** targeting the vulnerable n8n sandbox. It demonstrates workflow injection to exploit the unrestricted `Execute Command` node.
+
+*   **[Adversarial Prompt Generator](exploitation/AdversarialGenerator/README.md)**
+    *   **Summary**: An automated system for generating diverse, category-specific jailbreak and prompt-injection payloads, and executing them against a local LLM sandbox. Uses `attack.py` to run attacks and generates detailed Markdown reports of the results.
+
+### `tutorials/`
+
+*   **[Community Resources for Agentic AI Red Teaming](etutorials/community_resources.md)**
+    * **Summary**: A curated, professional list of community resources to help practitioners plan, execute, and improve agentic AI red teaming efforts.
+
+*   **[Tools](tools.md)**
+    * **Summary**: A curated list of tools, organized by the phases defined in the [GenAI Red Teaming Manual](https://genai.owasp.org/initiatives/#ai-redteaming).
 
 
 ## Contribution Guide
