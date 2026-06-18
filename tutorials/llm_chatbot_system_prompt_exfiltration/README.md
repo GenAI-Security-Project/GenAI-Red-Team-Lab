@@ -32,9 +32,9 @@ The techniques described here exploit common architectural mistakes in LLM chatb
 ## Prerequisites
 
 - A browser with developer tools (F12 → Network tab)
-- Optional: Burp Suite or any HTTP proxy for API-layer testing
+- Optional: [Burp Suite](https://portswigger.net/burp) or any HTTP proxy for API-layer testing
+- Optional: [curl](https://curl.se) or [Postman](https://www.postman.com) for API request crafting
 - Basic familiarity with JSON and REST APIs
-
 ---
 
 ## Stage 1 — Passive Reconnaissance via Tool Interrogation
