@@ -26,6 +26,7 @@ This is how we envision the [GenAI Red Team Lab](https://github.com/GenAI-Securi
 .
 ├── CONTRIBUTING.md
 ├── exploitation
+│   ├── AdversarialGenerator
 │   ├── agent0
 │   ├── example
 │   ├── garak
@@ -183,6 +184,9 @@ uv --version
 
 *   **[n8n RCE via File Write Exploitation](exploitation/n8n_RCE_via_file_write/README.md)**
     *   **Summary**: A complete, end-to-end Python exploitation script for **CVE-2026-21877** targeting the vulnerable n8n sandbox. It demonstrates workflow injection to exploit the unrestricted `Execute Command` node.
+
+*   **[Adversarial Prompt Generator](exploitation/AdversarialGenerator/README.md)**
+    *   **Summary**: An automated system for generating diverse, category-specific jailbreak and prompt-injection payloads, and executing them against a local LLM sandbox. Uses `attack.py` to run attacks and generates detailed Markdown reports of the results.
 
 ### `tutorials/`
 

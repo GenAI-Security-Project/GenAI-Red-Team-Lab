@@ -14,8 +14,8 @@ See below for a list of tools that can be used for AI red teaming, organized by 
 | | [Adversarial Robustness Toolbox (ART)](https://github.com/Trusted-AI/adversarial-robustness-toolbox) |
 | | [Giskard](https://github.com/Giskard-AI/giskard) |
 | | [CyberSecEval](https://github.com/meta-llama/PurpleLlama) |
-| | [Promptmap](https://github.com/0x6d696368/promptmap) |
-| | [Fuzzyai](https://github.com/S-S-R-G/fuzzyai) |
+| | [Promptmap](https://github.com/utkusen/promptmap) |
+| | [Fuzzyai](https://github.com/cyberark/fuzzyai) |
 | | [Fickling](https://github.com/trailofbits/fickling) |
 | | [Rigging](https://github.com/beaver-minds/rigging) |
 | | [judges](https://github.com/centerforaisafety/evaluation-utils) |
@@ -29,16 +29,20 @@ See below for a list of tools that can be used for AI red teaming, organized by 
 | | [GitLeaks](https://github.com/gitleaks/gitleaks) / [TruffleHog](https://github.com/trufflesecurity/trufflehog) / [GitGuardian](https://www.gitguardian.com/) (Secret & Repo Scanning)|
 | | Model Image runtime scanning |
 | | [LLMmap](https://github.com/pasquini-dario/LLMmap) |
+| | [ModelScan](https://github.com/protectai/modelscan): Scans model artifacts (Pickle, H5, SavedModel, PyTorch) for unsafe code / deserialization payloads |
 | **Phase 3: Surface Mapping & Vulnerability** | Traffic capture: [Chrome DevTools](https://developer.chrome.com/docs/devtools/) (HAR), [mitmproxy](https://mitmproxy.org/). |
 | | API specs and testing: [Swagger](https://swagger.io/), [Postman](https://www.postman.com/). |
 | | Diagramming and Threat Modeling: [Mermaid](https://mermaid.js.org/), [Draw.io](https://app.diagrams.net/), [OWASP Threat Dragon](https://owasp.org/www-project-threat-dragon/), [ThreatCanvas by SecureFlag](https://www.secureflag.com/threat-modeling), [ThreatFinderAI](https://github.com/jvdassen/ThreatFinder.ai). |
 | | RAG and data  inspection: [Unstructured](https://unstructured.io/) ([Docling](https://github.com/DS4SD/docling), [Tika](https://tika.apache.org/)), vector DB console ([Weaviate](https://weaviate.io/), [Pinecone](https://www.pinecone.io/), [Qdrant](https://qdrant.tech/)). |
 | | [ASCII Smuggler](https://embracethered.com/blog/ascii-smuggler.html) |
+| | [mcp-scan](https://github.com/invariantlabs-ai/mcp-scan): Scans MCP servers for tool poisoning, tool-description prompt injection, and rug-pull tool redefinition |
 | | Auth and secrets: [GitLeaks](https://github.com/gitleaks/gitleaks), Vault, KMS CLI. |
 | | Observability: [OpenTelemetry](https://opentelemetry.io/), [Grafana Loki](https://grafana.com/oss/loki/), [ELK Stack](https://www.elastic.co/elastic-stack), [Morpheus](https://github.com/nv-morpheus/Morpheus), [Datadog](https://www.datadoghq.com/). |
 | | LLM recon/evals (optional): [PyRIT](https://github.com/microsoft/pyrit), [Promptfoo](https://www.promptfoo.dev/), [Garak](https://github.com/NVIDIA/garak), Deepteam, Spikee |
 | **Phase 4: Exploitation** | [CleverHans](https://github.com/cleverhans-lab/cleverhans): Helps generating adversarial examples and attacks on AI models |
 || [Agent0](https://github.com/agent0ai/agent-zero): Containerized Agentic System based on Kali Linux. See the examples in [GenAI-Red-Team-Lab/exploitation/agent0](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Lab/tree/main/exploitation/agent0) |
+| | [AgentDojo](https://github.com/ethz-spylab/agentdojo): Framework for prompt-injection attacks (and defenses) against tool-using LLM agents |
+| | [llm-attacks (GCG)](https://github.com/llm-attacks/llm-attacks): Generates universal, transferable adversarial suffixes against LLMs via Greedy Coordinate Gradient |
 | **Phase 5: Persistence & Escalation** | [LLMGuard](https://github.com/LLMGuard/LLMGuard), [Giskard](https://github.com/Giskard-AI/giskard), or [Garak](https://github.com/NVIDIA/garak) for continuous guardrail validation |
 | | [LangSmith](https://docs.smith.langchain.com/) / [LlamaIndex](https://docs.llamaindex.ai/en/stable/) tracing for memory and state monitoring |
 | | [Pinecone Console](https://www.pinecone.io/docs/console/), [Weaviate Management UI](https://weaviate.io/docs/console/), [Chroma Vector DB Analyzer](https://docs.trychroma.com/guides/vector-db-analyzer) |
