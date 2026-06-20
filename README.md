@@ -20,6 +20,11 @@ This is how we envision the [GenAI Red Team Lab](https://github.com/GenAI-Securi
     
     _Felipe Campos Penha ([felipe.penha@owasp.org](mailto:felipe.penha@owasp.org))_
 
+## Legacy Repository
+
+The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-language-model-applications/tree/main/initiatives/genai_red_team_handbook) has the history of original contributions by authors _Felipe Campos Penha_ and _Jason Ross_.
+
+
 ## Directory Structure
 
 ```text
