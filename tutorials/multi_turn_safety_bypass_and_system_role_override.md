@@ -4,7 +4,7 @@
 **OWASP Mapping:** LLM01:2025 (Prompt Injection), LLM04:2025 (Output Handling), LLM07:2025 (System Prompt Leakage)
 **Difficulty:** Intermediate
 **Environment:** Any LLM-powered chatbot with safety alignment and content filtering
-**Status:** Field-validated (independent security research, responsible disclosure via national CERT and MITRE, October 2025 – May 2026)
+**Status:** Field-validated (independent security research, responsible disclosure via MITRE, October 2025 – May 2026)
 
 ---
 
@@ -19,7 +19,7 @@ This tutorial documents a **six-stage attack chain** demonstrating four distinct
 
 These techniques exploit architectural weaknesses common across LLM deployments: unsanitized control tokens in user input, Markdown directive parsing that enables role injection, absence of conversation-level context tracking, and high-throughput inference pipelines where output is delivered faster than safety filters can intercept it.
 
-> **Scope note:** All techniques were validated through independent security research under responsible disclosure. Vulnerabilities were reported to the respective national CERT and MITRE. No proprietary system names, vendor identities, or harmful output content are disclosed. The patterns are representative of common LLM deployment architectures (open-weight models behind public chat interfaces with no authentication).
+> **Scope note:** All techniques were validated through independent security research under responsible disclosure. Vulnerabilities were reported to MITRE. No proprietary system names, vendor identities, or harmful output content are disclosed. The patterns are representative of common LLM deployment architectures (open-weight models behind public chat interfaces with no authentication).
 
 > **Ethical note:** Restricted content categories and specific harmful outputs are deliberately left unspecified throughout this document. The defensive value lies in understanding the *mechanism* of bypass, not the *content* that was extracted.
 
@@ -609,8 +609,17 @@ Any single stage can achieve safety bypass independently.
 ## Author
 
 **Onurcan Genç**
-Independent Security Researcher
-Field research conducted through independent responsible disclosure, reported via national CERT (USOM) and MITRE, October 2025 – May 2026.
+Independent AI & Offensive Security Researcher
+
+- **Certifications:** C-AI/MLPen, C-AgAIPen, eWPT, eWPTXv3, CompTIA Security+
+- **CVE Portfolio:** Multiple critical findings (CVSS 9.9–10.0), including SSTI-to-RCE and VM sandbox escape vulnerabilities
+- **MITRE ATLAS:** Case study submissions for Crescendo jailbreak and control token injection techniques documented in this tutorial
+- **Research Focus:** LLM red teaming, mechanistic interpretability, adversarial AI safety
+- **Blog:** [blog.onurcangenc.com.tr](https://blog.onurcangenc.com.tr)
+- **GitHub:** [github.com/onurcangnc](https://github.com/onurcangnc)
+- **LinkedIn:** [linkedin.com/in/onurcangnc](https://linkedin.com/in/onurcangnc)
+
+Field research conducted through independent responsible disclosure, reported via MITRE, October 2025 – May 2026.
 Disclosed to affected vendors prior to publication.
 
 *Contributed to OWASP GenAI Security Project — Red Teaming Initiative*
