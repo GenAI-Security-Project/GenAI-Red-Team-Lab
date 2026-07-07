@@ -1,0 +1,13 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
+COPY app/ .
+RUN dotnet restore && dotnet publish -c Release -o out
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build /app/out .
+RUN mkdir -p /app/data && \
+    echo "ADMIN_PASSWORD=supersecret123" > /app/config.txt && \
+    mkdir -p /app/SafeFolder && \
+    echo "safe" > /app/SafeFolder/test.txt
+ENTRYPOINT ["dotnet", "VulnerableSemanticKernel.dll"]

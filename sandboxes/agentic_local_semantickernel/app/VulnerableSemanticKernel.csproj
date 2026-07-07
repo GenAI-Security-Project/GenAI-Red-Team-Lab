@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <NoWarn>SKEXP0001;CS8602;CS8632</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.48.0" />
+  </ItemGroup>
+</Project>
