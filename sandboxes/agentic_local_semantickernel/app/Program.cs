@@ -2,107 +2,120 @@ using System;
 using System.IO;
 using System.Text;
 using System.Text.Json;
-using System.Net;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
-
 var kernelBuilder = Kernel.CreateBuilder();
 kernelBuilder.Plugins.AddFromType<FilePlugin>("FileTools");
 
-bool hardened = Environment.GetEnvironmentVariable("LAB_HARDENED") == "true";
-if (hardened)
+// Student environment check: Toggle switch for global hardening
+bool isLabHardened = Environment.GetEnvironmentVariable("LAB_HARDENED") == "true";
+if (isLabHardened)
+{
+    // Inject the robust defense filter directly into the orchestration pipeline
     kernelBuilder.Services.AddSingleton<IFunctionInvocationFilter, PathSanitizationFilter>();
+}
 
 var kernel = kernelBuilder.Build();
 builder.Services.AddSingleton(kernel);
 var app = builder.Build();
 
-app.MapGet("/api/health", () => Results.Ok(new { status = "ok", hardened }));
+app.MapGet("/api/health", () => Results.Json(new
+{
+    status = "healthy",
+    version = "1.48.0-vulnerable",
+    cve = "CVE-2026-25592-bypassable",
+    hardened = isLabHardened,
+    allowedDirectoriesSandbox = isLabHardened ? "enabled" : "disabled" // Opt-In Sandbox Paradox Simulator
+}));
 
-app.MapGet("/api/plugins", () => Results.Ok(new { plugins = new[] { new { name = "FileTools", functions = new[] { "SaveConversation" } } } }));
-
-app.MapPost("/api/invoke", async (InvokeRequest req) =>
+app.MapPost("/api/invoke", async (InvokeRequest request) =>
 {
     try
     {
         var args = new KernelArguments();
-        foreach (var kvp in req.Arguments)
-        {
-            if (kvp.Value is JsonElement je)
-                args[kvp.Key] = je;
-            else
-                args[kvp.Key] = kvp.Value?.ToString() ?? "";
-        }
-        Console.WriteLine($"[INVOKE] Plugin={req.Plugin} Function={req.Function} Args={string.Join(",", req.Arguments.Keys)}");
-        var result = await kernel.InvokeAsync(req.Plugin, req.Function, args);
-        return Results.Ok(new { success = true, result = result?.ToString() ?? "Success" });
+        foreach (var arg in request.Arguments) args[arg.Key] = arg.Value;
+        var result = await kernel.InvokeAsync(request.Plugin, request.Function, args);
+        return Results.Ok(new { success = true, result = result.ToString() });
     }
-    catch (UnauthorizedAccessException ex)
-    {
-        Console.WriteLine($"[INVOKE] BLOCKED: {ex.Message}");
-        return Results.Ok(new { success = false, error = ex.Message, blocked = true });
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"[INVOKE] ERROR: {ex.GetType().Name}: {ex.Message}");
-        return Results.Problem($"Invocation failed: {ex.Message}");
+    catch (Exception ex) 
+    { 
+        Console.WriteLine($"[!] Exploitation Intercepted/Triggered: {ex}");
+        return Results.Problem($"Invocation failed: {ex.Message}"); 
     }
 });
 
-app.MapPost("/api/autoinvoke", async (AutoInvokeRequest req) =>
+app.MapPost("/api/autoinvoke", async (AutoInvokeRequest request) =>
 {
     try
     {
+        var toolCall = request.ToolCall;
         var args = new KernelArguments();
-        if (req.ToolCall?.Arguments != null)
+        foreach (var arg in toolCall.Arguments) args[arg.Key] = arg.Value;
+
+        var result = await kernel.InvokeAsync(toolCall.Plugin, toolCall.Function, args);
+        string output = result.ToString() ?? string.Empty;
+
+        // "Shell Blinding" (Commit fa2d52f6 Simulator)
+        if (toolCall.Function == "SaveConversation")
         {
-            foreach (var kvp in req.ToolCall.Arguments)
-            {
-                if (kvp.Value is JsonElement je)
-                    args[kvp.Key] = je;
-                else
-                    args[kvp.Key] = kvp.Value?.ToString() ?? "";
-            }
+            Console.WriteLine("[AUTOINVOKE] [SHELL BLINDING ACTIVE] Redacting console path leakage.");
+            output = "[REDACTED BY SHELL BLINDING POLICY - fa2d52f6]";
         }
-        Console.WriteLine($"[AUTOINVOKE] Plugin={req.ToolCall.Plugin} Function={req.ToolCall.Function}");
-        var result = await kernel.InvokeAsync(req.ToolCall.Plugin, req.ToolCall.Function, args);
 
-        if (!hardened && req.ToolCall.Function == "SaveConversation")
-            return Results.Ok(new { success = true, result = "[REDACTED BY SHELL BLINDING POLICY - fa2d52f6]", executionType = "autonomous" });
-
-        return Results.Ok(new { success = true, result = result?.ToString() ?? "Success", executionType = "autonomous" });
-    }
-    catch (UnauthorizedAccessException ex)
-    {
-        return Results.Ok(new { success = true, result = "Execution Blocked: Malformed or unsafe tool arguments detected.", executionType = "blocked" });
+        return Results.Ok(new
+        {
+            success = true,
+            result = output,
+            executionType = "autonomous"
+        });
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"[AUTOINVOKE] ERROR: {ex.GetType().Name}: {ex.Message}");
+        Console.WriteLine($"[AUTOINVOKE_ERROR] {ex.GetType().Name}: {ex.Message}");
         return Results.Problem($"AutoInvoke failed: {ex.Message}");
     }
 });
 
 app.Run("http://0.0.0.0:8080");
 
+// ===================== CORE ORCHESTRATION SHIELD =====================
 public class PathSanitizationFilter : IFunctionInvocationFilter
 {
     public async Task OnFunctionInvocationAsync(FunctionInvocationContext context, Func<FunctionInvocationContext, Task> next)
     {
         foreach (var arg in context.Arguments)
         {
-            string val = arg.Value?.ToString() ?? "";
-            Console.WriteLine($"[FILTER] Checking arg '{arg.Key}' = '{val}'");
-            if (val.Contains("..") || val.Contains("/") || val.Contains("\\") || val.Contains("%2f"))
-                throw new UnauthorizedAccessException("Blocked: Path traversal detected.");
+            // Solve Type Confusion: Resolve nested parameters into strings BEFORE checking
+            string evaluatedValue = ResolveValueToString(arg.Value);
+
+            if (!string.IsNullOrEmpty(evaluatedValue))
+            {
+                if (evaluatedValue.Contains("..") || evaluatedValue.Contains("/") || evaluatedValue.Contains("\\"))
+                    throw new UnauthorizedAccessException("Blocked: Path traversal detected.");
+            }
         }
         await next(context);
+    }
+
+    private string ResolveValueToString(object? value)
+    {
+        if (value == null) return string.Empty;
+        if (value is string s) return s;
+        if (value is JsonElement el)
+        {
+            if (el.ValueKind == JsonValueKind.Array && el.GetArrayLength() > 0)
+                return el[0].GetString() ?? string.Empty;
+            if (el.ValueKind == JsonValueKind.Object && el.TryGetProperty("path", out var pathProp))
+                return pathProp.GetString() ?? string.Empty;
+        }
+        return value.ToString() ?? string.Empty;
     }
 }
 
@@ -111,63 +124,48 @@ public class FilePlugin
     [KernelFunction]
     public string SaveConversation(object path, string content)
     {
-        string stringPath = path?.ToString() ?? "default.txt";
-        Console.WriteLine($"[PLUGIN] Raw path: '{stringPath}' of type {path?.GetType().Name}");
+        if (path == null) return "Error: Path is null";
+        string stringPath = path.ToString() ?? "default.txt";
 
-        if (path is JsonElement el)
+        // Handle Type Confusion Deserialization inside the Execution Sink
+        if (path is string s && s.EndsWith("=="))
         {
-            Console.WriteLine($"[PLUGIN] JsonElement kind: {el.ValueKind}");
-            if (el.ValueKind == JsonValueKind.Array)
-            {
-                var parts = new List<string>();
-                foreach (var item in el.EnumerateArray())
-                    parts.Add(item.GetString() ?? "");
-                stringPath = string.Join("/", parts);
-                Console.WriteLine($"[PLUGIN] Array joined: '{stringPath}'");
-            }
-            else if (el.ValueKind == JsonValueKind.Object && el.TryGetProperty("path", out var p))
-            {
-                stringPath = p.GetString() ?? "default.txt";
-                Console.WriteLine($"[PLUGIN] Object path extracted: '{stringPath}'");
-            }
-            else
-            {
-                stringPath = el.GetString() ?? "default.txt";
-                Console.WriteLine($"[PLUGIN] JsonElement string: '{stringPath}'");
-            }
+            try { stringPath = Encoding.UTF8.GetString(Convert.FromBase64String(s)); } catch {}
         }
-        else if (path != null && path.GetType().GetProperty("path") != null)
+        else if (path is JsonElement el && el.ValueKind == JsonValueKind.Array)
+        {
+            // Extract the traversal string step dynamically from index elements
+            var pathSteps = new List<string>();
+            for (int i = 0; i < el.GetArrayLength(); i++)
+            {
+                var step = el[i].GetString();
+                if (!string.IsNullOrEmpty(step)) pathSteps.Add(step);
+            }
+            stringPath = pathSteps.Count > 0 ? string.Join(Path.DirectorySeparatorChar.ToString(), pathSteps) : "default.txt";
+        }
+        else if (path is JsonElement elObj && elObj.ValueKind == JsonValueKind.Object && elObj.TryGetProperty("path", out var pathProp))
+        {
+            stringPath = pathProp.GetString() ?? "default.txt";
+        }
+        else if (path.GetType().GetProperty("path") != null)
         {
             stringPath = path.GetType().GetProperty("path")?.GetValue(path)?.ToString() ?? "default.txt";
-            Console.WriteLine($"[PLUGIN] Reflection path: '{stringPath}'");
         }
 
-        if (stringPath.Contains("%"))
-        {
-            stringPath = WebUtility.UrlDecode(stringPath);
-            Console.WriteLine($"[PLUGIN] URL decoded: '{stringPath}'");
-        }
-        if (stringPath.Contains("\u2044"))
-        {
-            stringPath = stringPath.Replace("\u2044", "/");
-            Console.WriteLine($"[PLUGIN] Unicode normalized: '{stringPath}'");
-        }
-        if (stringPath.EndsWith("=="))
-        {
-            stringPath = Encoding.UTF8.GetString(Convert.FromBase64String(stringPath));
-            Console.WriteLine($"[PLUGIN] Base64 decoded: '{stringPath}'");
-        }
-
+        // Late-stage URL/Unicode normalization sinks
+        if (stringPath.Contains("%")) stringPath = WebUtility.UrlDecode(stringPath);
+        if (stringPath.Contains("\u2044")) stringPath = stringPath.Replace("\u2044", "/");
+        
         var fullPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "data", stringPath));
-        Console.WriteLine($"[PLUGIN] Writing to: {fullPath}");
         var dir = Path.GetDirectoryName(fullPath);
         if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
             Directory.CreateDirectory(dir);
+
         File.AppendAllText(fullPath, content);
         return "Success";
     }
 }
 
 public record InvokeRequest(string Plugin, string Function, Dictionary<string, object> Arguments);
-public record ToolCallInfo(string Plugin, string Function, Dictionary<string, object> Arguments);
-public record AutoInvokeRequest(string UserPrompt, ToolCallInfo ToolCall);
+public record ToolCall(string Plugin, string Function, Dictionary<string, object> Arguments);
+public record AutoInvokeRequest(string UserPrompt, ToolCall ToolCall);
