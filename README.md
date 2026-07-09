@@ -56,6 +56,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 └── tutorials
     ├── community_resources.md
     ├── llm_chatbot_system_prompt_exfiltration.md
+    ├── multi_turn_safety_bypass_and_system_role_override.md
     ├── README.md
     └── tools.md
 ```
@@ -227,6 +228,9 @@ uv --version
 
 *   **[LLM Chatbot System Prompt Exfiltration](tutorials/llm_chatbot_system_prompt_exfiltration.md)**
     * **Summary**: A comprehensive tutorial outlining a five-stage attack chain (from passive reconnaissance to API-layer system role injection) targeting LLM-powered chatbots to exfiltrate their system prompt, including remediation steps.
+
+*   **[Multi-Vector LLM Safety Bypass](tutorials/multi_turn_safety_bypass_and_system_role_override.md)**
+    * **Summary**: Field observations of a six-stage attack chain demonstrating four distinct classes of LLM safety bypass (such as control token injection and role-label spoofing) observed against production chatbot deployments during independent testing.
 
 
 ## Contribution Guide
