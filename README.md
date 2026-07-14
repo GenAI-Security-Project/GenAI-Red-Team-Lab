@@ -229,6 +229,9 @@ uv --version
 *   **[LLM Chatbot System Prompt Exfiltration](tutorials/llm_chatbot_system_prompt_exfiltration.md)**
     * **Summary**: A comprehensive tutorial outlining a five-stage attack chain (from passive reconnaissance to API-layer system role injection) targeting LLM-powered chatbots to exfiltrate their system prompt, including remediation steps.
 
+*   **[Multi-Technique Guardrail Bypass Evaluation](tutorials/multi_technique_guardrail_bypass_evaluation.md)**
+    * **Summary**: Field observations documenting four guardrail-bypass technique families evaluated across a five-stage black-box sequence against a single chatbot deployment, with OWASP LLM01:2025 mapping and mitigation guidance.
+
 *   **[Multi-Vector LLM Safety Bypass](tutorials/multi_turn_safety_bypass_and_system_role_override.md)**
     * **Summary**: Field observations of a six-stage attack chain demonstrating four distinct classes of LLM safety bypass (such as control token injection and role-label spoofing) observed against production chatbot deployments during independent testing.
 
