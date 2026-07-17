@@ -24,6 +24,7 @@ The goal of these sandboxes is to provide ready-to-use, isolated environments wh
 
 *   **`agentic_local_n8n_v1.65.0/`**: A vulnerable n8n sandbox (version 1.65.0) specifically configured to demonstrate critical vulnerabilities such as **Ni8mare (CVE-2026-21858)** (Unauthenticated RCE) and **CVE-2026-21877** (n8n Remote Code Execution via File Write). It features a "misconfigured" setup with all nodes enabled and network exposure, making it an ideal target for practicing exploitation techniques like manual RCE and workflow manipulation in an agentic workflow automation tool.
 
+*   **`agentic_local_semantickernel/`**: A containerized sandbox running **Microsoft Semantic Kernel v1.48.0** demonstrating **6 active CVE-2026-25592 path traversal bypass techniques** via Type Confusion (CWE-843). The sandbox includes a deliberately vulnerable `FilePlugin` with dual-mode operation: **UNHARDENED** (no filter) and **HARDENED** (`PathSanitizationFilter` via `LAB_HARDENED=true`). Also demonstrates **CWE-1039** (AutoInvoke) exploitation and **Commit `fa2d52f6`** ("Shell Blinding") bypass — Microsoft cosmetic output masking that masks paths from LLM output but does not prevent the underlying file write. Reference: [JDP-2026-001](https://jdp-security.github.io/security-research-papers/2026-04-28-semantic-kernel-disclosure.html) — CVSS 10.0 Critical.
 
 ## Usage
 
