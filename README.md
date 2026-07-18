@@ -40,11 +40,13 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── LocalAI_v2.17.1
 │   ├── n8n_RCE_via_file_write
 │   ├── Ni8mare
+│   ├── semantickernel
 │   └── promptfoo
 ├── LICENSE
 ├── README.md
 ├── sandboxes
 │   ├── agentic_local_n8n_v1.65.0
+│   ├── agentic_local_semantickernel
 │   ├── llm_local
 │   ├── llm_local_InvokeAI_v5.3.0
 │   ├── llm_local_langchain_core_v1.2.4
@@ -182,6 +184,9 @@ uv --version
 *   **[n8n Vulnerable Sandbox](sandboxes/agentic_local_n8n_v1.65.0/README.md)**
     *   **Summary**: A robust, containerized environment running **n8n v1.65.0**. This version is vulnerable to **four critical CVEs**: **Ni8mare** (CVE-2026-21858), **N8scape** (CVE-2025-68668), **CVE-2025-68613**, and **CVE-2026-21877**. The sandbox is pre-configured with dangerous nodes enabled (`NODES_EXCLUDE=""`) to allow red teamers to practice multiple exploitation techniques (RCE, sandbox escape, file write) safely in isolation.
 
+*   **[Semantic Kernel Vulnerable Sandbox](sandboxes/agentic_local_semantickernel/README.md)**
+    *   **Summary**: A containerized sandbox running **Microsoft Semantic Kernel v1.48.0** demonstrating **6 active evasion techniques** against the official **CVE-2026-25592** path traversal remediation. Despite Microsoft's patch (PR #13683 — `AllowedDirectories` as opt-in "Breaking Change"), all six Type Confusion bypass vectors remain functional. The sandbox also demonstrates **Commit `fa2d52f6`** ("Shell Blinding") which masks output paths from the LLM context but fails to prevent the underlying file write — a purely cosmetic fix. Includes a dual-mode `.NET 8.0` REST API: **UNHARDENED** (no filter) and **HARDENED** (`PathSanitizationFilter` via `LAB_HARDENED=true`). Reference: [JDP-2026-001](https://jdp-security.github.io/security-research-papers/2026-04-28-semantic-kernel-disclosure.html) — CVSS 10.0 Critical.
+
 ### `exploitation/`
 
 *   **[Red Team Example](exploitation/example/README.md)**
@@ -217,6 +222,18 @@ uv --version
 
 *   **[Adversarial Prompt Generator](exploitation/AdversarialGenerator/README.md)**
     *   **Summary**: An automated system for generating diverse, category-specific jailbreak and prompt-injection payloads, and executing them against a local LLM sandbox. Uses `attack.py` to run attacks and generates detailed Markdown reports of the results.
+
+*   **[Semantic Kernel CVE-2026-25592 Bypass Trainer](exploitation/semantickernel/README.md)**
+    *   **Summary**: An interactive training wizard and automated verification suite demonstrating **6 Type Confusion bypass vectors** that evade Microsoft's **CVE-2026-25592** patch in Semantic Kernel v1.48.0. The filter uses `if (arg is string s)` — a check that fails when arguments are passed as JSON arrays, objects, or encoded strings (CWE-843). The execution sink deserializes these complex types back into strings, creating a **Time-of-Check / Time-of-Use** mismatch. Also demonstrates **CWE-1039** (AutoInvoke) exploitation and **Commit `fa2d52f6`** ("Shell Blinding") bypass — Microsoft's cosmetic output masking that redacts paths from LLM context but does not prevent the file write.
+
+        **Includes:**
+        *   `interactive_trainer.py`: Menu-driven CLI with all 6 vectors + AutoInvoke Shell Blinding toggle + built-in container management (start/stop/toggle hardened mode)
+        *   `verify_all.sh`: Double-pass automated verification (Unhardened vs. Hardened) with OOB filesystem validation via `podman exec`
+        *   `attack.py` (type confusion & autoinvoke): Programmatic payload dispatchers
+
+        **Bypass Vectors:** JSON Array Confusion, Object Reflection, Base64 Encoding, URL Encoding, Unicode Homoglyph (U+2044), Hybrid Canonicalization.
+
+        **Reference:** [JDP-2026-001 White Paper](https://jdp-security.github.io/security-research-papers/2026-04-28-semantic-kernel-disclosure.html)
 
 ### `tutorials/`
 
