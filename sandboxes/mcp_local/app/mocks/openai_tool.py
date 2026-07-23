@@ -68,6 +68,11 @@ async def chat_completions(
                     if not response_message.tool_calls:
                         return response
 
+                    # Preserve the assistant's tool-call request before adding results.
+                    request.messages.append(
+                        response_message.model_dump(exclude_none=True)
+                    )
+
                     for tool_call in response_message.tool_calls:
                         tool_name = tool_call.function.name
                         tool_args_raw = tool_call.function.arguments
