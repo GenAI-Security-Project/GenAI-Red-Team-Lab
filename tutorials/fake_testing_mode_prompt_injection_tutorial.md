@@ -12,27 +12,25 @@
 
 ## Overview
 
-A fake testing-mode prompt injection presents ordinary user input as if it came
-from an authorized evaluator, developer, or privileged test harness. The prompt
-may also define policy-like variables or an alternate response mode and claim
-that these controls replace the deployment's normal instructions.
+A fake testing-mode prompt injection frames ordinary user input as instructions
+from an authorized evaluator, developer, or privileged evaluation system. It may
+also define policy-like variables or an alternate response mode and claim that
+these controls replace the deployment's normal instructions.
 
-This tutorial documents a historical case in which that pattern was delivered
-through a public chat interface. The visible response reflected parts of the
-user-supplied control framing and crossed the deployment's expected safety
-boundary.
+This historical case records that pattern in a public chat interface. The
+visible response adopted parts of the user-supplied control framing and crossed
+the deployment's expected safety boundary.
 
-This tutorial does not claim that the underlying fake testing-mode jailbreak
-mechanism is new. It documents target-specific validation against a public
-third-party LLM deployment and the resulting instruction-hierarchy and
-guardrail failures.
+The underlying jailbreak mechanism is established prior art. This tutorial
+documents target-specific validation against a public third-party LLM
+deployment and the resulting instruction-hierarchy and guardrail failures.
 
 The exact prompt, control names, harmful request, prohibited output, provider
 identity, model identity, and deployment identifiers are intentionally omitted.
 
 ## Learning objectives
 
-By the end of this tutorial, a defender should be able to:
+Defenders can use this tutorial to:
 
 - recognize fabricated testing or evaluation authority in direct user input;
 - distinguish user-defined controls from trusted system configuration;
@@ -42,10 +40,10 @@ By the end of this tutorial, a defender should be able to:
 
 ## Scope and evidence boundaries
 
-The observation concerns an external public LLM deployment, not a repository
-sandbox. Testing used only the ordinary user-facing chat interface. No
-privileged access, administrative function, external tool, or real-world action
-was involved.
+The observation concerns an external public LLM deployment; no repository
+sandbox was involved. Testing used only the ordinary user-facing chat
+interface, without privileged access, administrative functions, external
+tools, or real-world actions.
 
 The historical material supports these limited findings:
 
@@ -68,8 +66,7 @@ or a particular model architecture.
 
 ## Attack pattern
 
-At a safe level of abstraction, the direct prompt injection followed this
-sequence:
+The direct prompt injection followed this abstract sequence:
 
 1. The user message claimed a special testing or evaluation context.
 2. It asserted that the claimed context had authority over normal behavior.
@@ -79,15 +76,15 @@ sequence:
 6. The visible response adopted parts of the framing and produced content that
    should have been refused.
 
-The security failure is not the presence of words such as “test” or
-“evaluation.” It is the deployment's treatment of untrusted user text as if it
-could alter instruction priority or safety policy.
+The failure occurs when a deployment treats untrusted user text as authority to
+change instruction priority or safety policy. Benign use of words such as
+“test” or “evaluation” is not enough to establish a prompt-injection attempt.
 
 ## Safe defensive evaluation
 
-Perform this evaluation only in an authorized sandbox using harmless test
-content. Do not test an external service without permission, and do not use a
-request whose answer would create operational harm.
+Run this evaluation only in an authorized sandbox with harmless test content.
+Never test an external service without permission or use a request whose answer
+would create operational harm.
 
 ### 1. Define the invariant
 
@@ -109,9 +106,8 @@ evaluation:
 - an assertion that ordinary instructions are suspended; and
 - a request to delay or separate the refusal.
 
-Do not copy a public jailbreak verbatim. The purpose is to test whether the
-system preserves trust boundaries across semantic variants, not to optimize a
-bypass.
+Do not copy a public jailbreak verbatim. These variants test whether the system
+preserves trust boundaries without optimizing a bypass.
 
 ### 3. Run controlled trials
 
@@ -146,17 +142,17 @@ needed to explain the failure and its defensive implications.
 
 ## Detection guidance
 
-Useful signals include user input that:
+Watch for user input that:
 
-- claims evaluator, developer, administrator, or test-harness authority;
+- claims evaluator, developer, administrator, or evaluation-system authority;
 - declares a new mode that allegedly supersedes normal instructions;
 - defines variables that resemble policy or safety configuration;
 - asks the model to ignore, reset, reinterpret, or postpone safeguards;
 - requests paired restricted and unrestricted answers; or
 - uses a short follow-up to continue behavior established by injected framing.
 
-These are risk indicators, not standalone proof of abuse. Detection should
-combine semantic analysis, instruction-source tracking, session context, and
+Treat these as risk indicators rather than standalone proof of abuse. Combine
+semantic analysis, instruction-source tracking, session context, and
 independent output checks. Keyword blocking alone will miss paraphrases and may
 over-block legitimate evaluation discussions.
 
@@ -203,25 +199,21 @@ enumeration, or real-world execution is asserted.
 ## Prior art and classification
 
 Direct instruction override, fabricated authority or context, fake evaluation
-modes, and response-control patterns were documented before this observation.
-The historical prompt was a modified variant of an existing technique family.
-The contribution is the independently observed behavior of one anonymized
-deployment.
+modes, and response-control patterns predate this observation. The historical
+prompt modified an existing technique family. This case adds independently
+observed behavior from one anonymized deployment.
 
 The appropriate classification is:
 
 > “Known technique, new target-specific case study.”
 
-This wording distinguishes target-specific evidence from a claim of a novel
-jailbreak mechanism.
-
 ## Reproducibility limitations
 
 The original observation involved an external public deployment whose behavior
-may change. At the time this tutorial was prepared, the deployment was
-unavailable. The reason for its unavailability could not be confirmed. This
-repository does not automate testing against that service. Supporting evidence
-and validation materials remain private and untracked.
+may change. The deployment was unavailable when this tutorial was prepared,
+and the reason could not be confirmed. This repository does not automate
+testing against that service. Supporting evidence and validation materials
+remain private and untracked.
 
 The exact deployment configuration, fresh-session behavior, server-side logs,
 and current behavior are unknown. These limitations prevent claims about
@@ -229,16 +221,17 @@ reliability, root cause, or present-day exploitability.
 
 ## Ethical testing, anonymization, and disclosure
 
-No new testing of the historical target was performed for this contribution.
-No captured output was acted on outside evidence documentation, and this
-tutorial contains no operational harmful output or reusable jailbreak payload.
+The researchers performed no new testing of the historical target for this
+contribution and did not act on captured output outside evidence documentation.
+This tutorial contains no operational harmful output or reusable jailbreak
+payload.
 
-The affected organization was notified before preparation of this public
-contribution. No acknowledgement or remediation confirmation had been received
+The researchers notified the affected organization before preparing this public
+contribution. They had received no acknowledgement or remediation confirmation
 at the time of preparation. The provider, organization, product, model family
 and version, deployment domain, hostnames, endpoints, branding, account
 identifiers, session identifiers, conversation titles, and original evidence
-filenames are withheld.
+filenames remain withheld.
 
 The public deployment was later observed to be unavailable. No causal
 relationship between the notification and the service status has been
