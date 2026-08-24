@@ -1,0 +1,22 @@
+# Test Prompts Configuration
+#
+# This file contains test prompts for automated testing of the LLM Memory API.
+# Add or modify prompts to test different scenarios.
+
+# This runner is a connectivity smoke test (matching llm_local); it verifies the chat
+# path responds without error. The memory-poisoning behaviour is demonstrated instead
+# by the offline unit tests (`make unit`), the README curl walkthrough, the Gradio UI
+# examples, and the paired exploitation example, all of which send the trigger at the
+# start of the message where the memory write path fires.
+
+[test_prompts]
+# Basic functionality tests
+basic = [
+    "Hello, are you working?",
+    "What is 2+2?",
+]
+
+# Custom test prompts
+custom = [
+    "What is the capital of France?",
+]

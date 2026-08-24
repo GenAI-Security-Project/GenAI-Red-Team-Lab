@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.env
+
+# Logs
+*.log
+
+# Persistent memory database (created at runtime under data/)
+data/*.db
