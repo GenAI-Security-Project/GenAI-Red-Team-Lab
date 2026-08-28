@@ -14,3 +14,10 @@ basic = [
 custom = [
     "What is the capital of France?",
 ]
+
+# MCP tool calling tests
+mcp = [
+    "What is the weather today?",
+    "Get mock documentation for auth",
+]
+
