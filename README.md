@@ -7,17 +7,17 @@ This repository provides a collection of sandboxes, exploitation code, and tutor
 This is how we envision the [GenAI Red Team Lab](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Lab/) being used:
 
 * **Sandboxes** may be simply recycled to model the core components of a larger GenAI system.
-    
+
     Alternatively, security researchers and developers may want to adapt a sandbox for their own use case.
 
 * **Exploitation code and tutorials** may serve as learning tools for security researchers and enthusiasts alike.
-    
+
     Additionally, these are easily adaptable for testing out new attacks against sandboxes.
 
 ## Contact
 
 - **Code Workstream Leader for the [OWASP GenAI Security Project – Red Teaming Initiative](https://genai.owasp.org/initiatives/#ai-redteaming)**:
-    
+
     _Felipe Campos Penha ([felipe.penha@owasp.org](mailto:felipe.penha@owasp.org))_
 
 ## Legacy Repository
@@ -31,30 +31,32 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 .
 ├── CONTRIBUTING.md
 ├── exploitation
-│   ├── AdversarialGenerator
-│   ├── agent0
-│   ├── example
-│   ├── garak
-│   ├── Langflow_v1.0.12
-│   ├── LangGrinch
-│   ├── LocalAI_v2.17.1
-│   ├── n8n_RCE_via_file_write
-│   ├── Ni8mare
-│   ├── semantickernel
-│   └── promptfoo
+│   ├── AdversarialGenerator
+│   ├── agent0
+│   ├── example
+│   ├── garak
+│   ├── Langflow_v1.0.12
+│   ├── LangGrinch
+│   ├── langchain
+│   ├── LocalAI_v2.17.1
+│   ├── n8n_RCE_via_file_write
+│   ├── Ni8mare
+│   ├── semantickernel
+│   └── promptfoo
 ├── LICENSE
 ├── README.md
 ├── sandboxes
-│   ├── agentic_local_n8n_v1.65.0
-│   ├── agentic_local_semantickernel
-│   ├── llm_local
-│   ├── llm_local_InvokeAI_v5.3.0
-│   ├── llm_local_langchain_core_v1.2.4
-│   ├── llm_local_langflow_v1.0.12
-│   ├── llm_local_localAI_v2.17.1
-│   ├── mcp_local
-│   ├── RAG_local
-│   └── README.md
+│   ├── agentic_local_langchain
+│   ├── agentic_local_n8n_v1.65.0
+│   ├── agentic_local_semantickernel
+│   ├── llm_local
+│   ├── llm_local_InvokeAI_v5.3.0
+│   ├── llm_local_langchain_core_v1.2.4
+│   ├── llm_local_langflow_v1.0.12
+│   ├── llm_local_localAI_v2.17.1
+│   ├── mcp_local
+│   ├── RAG_local
+│   └── README.md
 └── tutorials
     ├── community_resources.md
     ├── llm_chatbot_system_prompt_exfiltration.md
@@ -187,13 +189,16 @@ uv --version
 *   **[Semantic Kernel Vulnerable Sandbox](sandboxes/agentic_local_semantickernel/README.md)**
     *   **Summary**: A containerized sandbox running **Microsoft Semantic Kernel v1.48.0** demonstrating **6 active evasion techniques** against the official **CVE-2026-25592** path traversal remediation. Despite Microsoft's patch (PR #13683 — `AllowedDirectories` as opt-in "Breaking Change"), all six Type Confusion bypass vectors remain functional. The sandbox also demonstrates **Commit `fa2d52f6`** ("Shell Blinding") which masks output paths from the LLM context but fails to prevent the underlying file write — a purely cosmetic fix. Includes a dual-mode `.NET 8.0` REST API: **UNHARDENED** (no filter) and **HARDENED** (`PathSanitizationFilter` via `LAB_HARDENED=true`). Reference: [JDP-2026-001](https://jdp-security.github.io/security-research-papers/2026-04-28-semantic-kernel-disclosure.html) — CVSS 10.0 Critical.
 
+*   **[LangChain Orchestration Poisoning Sandbox](sandboxes/agentic_local_langchain/README.md)**
+    *   **Summary**: A containerized sandbox running **LangChain-core v1.2.24 through latest** (tested up to v1.6.0 as of August 2026) demonstrating **critical Insecure Orchestration vulnerabilities**. Students bypass **CVE-2026-34070** (direct path traversal — patched in v1.2.25+), **CVE-2023-36258** (symlink suffix bypass — **NEVER PATCHED**), and the **unpatched write primitive** (`.save()` — **NO CVE ASSIGNED**). The sandbox simulates the real-world patch lifecycle across 5 stages, proving that symlink reads and the write-side `.save()` method remain exploitable in every version tested. Includes a pre-created symlink (`/app/config.json` → `/app/config.txt`) to demonstrate CWE-59 (Improper Link Resolution). Reference: [JDP-2026-004](https://jdp-security.github.io/security-research-papers/2026-05-12-langchain-orchestration-poisoning-disclosure.html) — CVSS 10.0 Critical.
+
 ### `exploitation/`
 
 *   **[Red Team Example](exploitation/example/README.md)**
     *   **Summary**: Demonstrates a red team operation against a local LLM sandbox. It includes an adversarial attack script (`attack.py`) targeting the Gradio interface (port 7860). By targeting the application layer, this approach tests the entire system—including the configurable system prompt—providing a more realistic assessment of the sandbox's security posture compared to testing the raw LLM API in isolation.
 
 *   **[Agent0 Red Team Example](exploitation/agent0/README.md)**
-    *   **Summary**: A complete, end‑to‑end, agentic example. [Agent0](https://github.com/agent0ai/agent-zero) orchestrates multiple autonomous agents to attack the sandbox, demonstrating complex, multi-step adversarial workflows. 
+    *   **Summary**: A complete, end‑to‑end, agentic example. [Agent0](https://github.com/agent0ai/agent-zero) orchestrates multiple autonomous agents to attack the sandbox, demonstrating complex, multi-step adversarial workflows.
 
         There are options for running it: through the UI (manual prompt interaction) and through the Makefile (programmatic run based on pre-defined prompts).
 
@@ -234,6 +239,21 @@ uv --version
         **Bypass Vectors:** JSON Array Confusion, Object Reflection, Base64 Encoding, URL Encoding, Unicode Homoglyph (U+2044), Hybrid Canonicalization.
 
         **Reference:** [JDP-2026-001 White Paper](https://jdp-security.github.io/security-research-papers/2026-04-28-semantic-kernel-disclosure.html)
+
+*   **[LangChain Orchestration Poisoning Trainer](exploitation/langchain/README.md)**
+    *   **Summary**: An interactive training wizard and verification suite demonstrating **critical Insecure Orchestration vulnerabilities** in LangChain-core across **5 lifecycle stages** (v1.2.24 through latest). Students learn to bypass **CVE-2026-34070** (direct path traversal — patched v1.2.25+), **CVE-2023-36258** (symlink suffix bypass — **NEVER PATCHED**), and the **unpatched write primitive** (`.save()` — **NO CVE ASSIGNED**). The trainer proves that while the vendor patched direct read traversal, symlink reads remain exploitable in ALL versions and the write-side `.save()` method was never properly remediated.
+
+        **Includes:**
+        *   `interactive_trainer.py`: Menu-driven CLI with 4 core lessons across 5 stages, including built-in Docker/Podman container management (start/stop/switch stages)
+        *   `submission_audit.md`: Full vulnerability validation and audit report
+
+        **Key Findings:**
+        *   Direct read patched in v1.2.25+ (CVE-2026-34070)
+        *   Symlink read **NEVER PATCHED** (CVE-2023-36258)
+        *   Write primitive **NEVER PATCHED** (no CVE assigned)
+        *   RCE chain achievable via framework source overwrite
+
+        **Reference:** [JDP-2026-004 White Paper](https://jdp-security.github.io/security-research-papers/2026-05-12-langchain-orchestration-poisoning-disclosure.html)
 
 ### `tutorials/`
 

@@ -1,0 +1,28 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1
+ENV OPENAI_API_KEY="sk-dummy-local-lab-key"
+
+RUN apt-get update && apt-get install -y curl jq && rm -rf /var/lib/apt/lists/*
+
+# REAL vulnerable version - no path validation at all
+RUN pip install --no-cache-dir langchain-core==1.2.24
+
+RUN mkdir -p /app/data /app/SafeFolder /app/sandbox_data
+
+RUN echo "ADMIN_PASSWORD=supersecret_langchain_2026" > /app/config.txt && \
+    echo "ADMIN_PASSWORD=supersecret_langchain_2026" > /config.txt && \
+    echo "This is a restricted file containing cloud configuration secrets." > /app/data/secure_secrets.txt && \
+    echo "Hello {name}, welcome to the secure agent space." > /app/SafeFolder/test.txt
+
+RUN ln -s /app/config.txt /app/config.json && \
+    ln -s /config.txt /config.json
+
+COPY app/ /app/app/
+
+EXPOSE 8000
+
+ENTRYPOINT ["python", "/app/app/server.py"]
+
