@@ -1,0 +1,6 @@
+# Client Configuration
+
+[client]
+# Pre-prompt to be prepended to the user message. The server additionally injects any
+# facts persisted for the active memory scope ahead of this text.
+pre_prompt = "You are a helpful assistant with long-term memory of the user."
