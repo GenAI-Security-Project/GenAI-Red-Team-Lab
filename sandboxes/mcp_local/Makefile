@@ -1,4 +1,4 @@
-.PHONY: help install sync lock build up down test test-client ollama-pull ollama-serve run-gradio-headless stop-gradio format mypy clean
+.PHONY: help install sync lock build up down test test-client test-mcp test-unit ollama-pull ollama-serve run-gradio-headless stop-gradio run-mcp stop-mcp format mypy clean
 
 # Default target
 help:
@@ -8,7 +8,9 @@ help:
 	@echo "  make up                    - Run the built container"
 	@echo "  make down                  - Stop and remove the container"
 	@echo "  make test                  - Test the health endpoint"
-	@echo "  make test-client           - Run automated prompt tests from config/prompts.toml"
+	@echo "  make test-client           - Run automated prompt tests against basic LLM endpoint"
+	@echo "  make test-mcp              - Run automated prompt tests against MCP server (tool calling)"
+	@echo "  make test-unit             - Run pytest unit & regression tests"
 	@echo "  make clean                 - Clean up containers and images"
 	@echo ""
 	@echo "  make install               - Install uv package manager"
@@ -96,6 +98,17 @@ test: sync lock clean ollama-pull ollama-serve build up
 
 test-client: sync lock clean ollama-pull ollama-serve build up test
 	podman exec app_container uv run python client/main.py
+
+test-mcp: sync lock clean ollama-pull ollama-serve build up test run-mcp
+	@echo "⏳ Waiting for MCP server and tool endpoint to be ready..."
+	@sleep 3
+	@echo "🧪 Running automated prompt tests against MCP server (tool calling)..."
+	podman exec -e OPENAI_BASE_URL="http://localhost:8000/v1/tool" app_container uv run python client/main.py
+
+test-unit: sync
+	@echo "🧪 Running pytest unit & regression tests..."
+	PYTHONPATH=. uv run pytest tests/
+
 
 run-gradio-headless: sync lock clean ollama-pull ollama-serve build up test test-client run-mcp
 	@echo "🧹 Stopping any existing Gradio instance..."

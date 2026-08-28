@@ -32,7 +32,9 @@ with open(client_config_path, "rb") as f:
     client_config = tomli.load(f)
 
 os.environ["OPENAI_API_KEY"] = "sk-mock-key"
-os.environ["OPENAI_BASE_URL"] = "http://localhost:8000/v1"
+if "OPENAI_BASE_URL" not in os.environ:
+    os.environ["OPENAI_BASE_URL"] = "http://localhost:8000/v1"
+
 
 
 @openai_call(model=config["default"]["model"])
