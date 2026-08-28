@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "Documented contract for the harness input. Not an officially hosted schema; validation in redteam_eval.py is built-in and manual.",
+  "title": "OWASP GenAI Red-Team Evaluation Input",
+  "description": "Input format for the pass@k evaluation and severity scoring harness. Either a bare array of records, or an object with an optional config and a records array.",
+  "oneOf": [
+    { "type": "array", "items": { "$ref": "#/definitions/record" } },
+    {
+      "type": "object",
+      "properties": {
+        "config": { "$ref": "#/definitions/config" },
+        "records": { "type": "array", "items": { "$ref": "#/definitions/record" } }
+      },
+      "required": ["records"],
+      "additionalProperties": false
+    }
+  ],
+  "definitions": {
+    "config": {
+      "type": "object",
+      "description": "Global evaluation settings.",
+      "properties": {
+        "min_trials_for_null": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 5,
+          "description": "N: the minimum number of trials required before a zero-success run is trusted as 'no success observed' rather than 'inconclusive'."
+        },
+        "z": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 1.96,
+          "description": "Confidence multiplier for the Wilson interval (1.96 = 95%)."
+        },
+        "secure_threshold": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 1,
+          "default": 0.05,
+          "description": "A bounded null 'meets threshold' when its 95% upper bound is at or below this value."
+        }
+      },
+      "additionalProperties": false
+    },
+    "record": {
+      "type": "object",
+      "description": "One attack tested over k trials against one target.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the finding." },
+        "attack_type": { "type": "string", "description": "Human-readable name of the attack technique." },
+        "target_component": {
+          "type": "string",
+          "enum": ["llm", "rag", "agent", "tool", "guardrail", "pipeline"],
+          "description": "Which component of the system was targeted."
+        },
+        "impact_category": {
+          "type": "string",
+          "enum": [
+            "rce",
+            "data_exfiltration",
+            "privilege_escalation",
+            "policy_bypass",
+            "prompt_injection",
+            "data_poisoning",
+            "tool_misuse",
+            "denial_of_service",
+            "integrity_manipulation",
+            "misinformation"
+          ],
+          "description": "The realized security impact class if the attack lands. Drives the base severity. Score hallucination-induced risk by the harm it actually causes (e.g. data_poisoning, tool_misuse), or use 'misinformation' when the false output itself is the harm."
+        },
+        "owasp_llm": {
+          "type": "string",
+          "description": "Mapping to the OWASP Top 10 for LLM and GenAI (e.g. 'LLM01:2025 Prompt Injection')."
+        },
+        "mitre_atlas": {
+          "type": "string",
+          "description": "Optional MITRE ATLAS technique id (e.g. 'AML.T0051')."
+        },
+        "trials": {
+          "type": "array",
+          "minItems": 1,
+          "description": "One entry per trial. Each is either a boolean (true = attack succeeded) or an object {\"success\": bool, \"note\": string}.",
+          "items": {
+            "oneOf": [
+              { "type": "boolean" },
+              {
+                "type": "object",
+                "properties": {
+                  "success": { "type": "boolean" },
+                  "note": { "type": "string" }
+                },
+                "required": ["success"],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "notes": { "type": "string", "description": "Optional free-text context for the finding." }
+      },
+      "required": ["id", "attack_type", "target_component", "impact_category", "trials"],
+      "additionalProperties": false
+    }
+  }
+}

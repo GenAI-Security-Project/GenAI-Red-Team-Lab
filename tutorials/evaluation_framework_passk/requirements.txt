@@ -1,0 +1,2 @@
+# No third-party dependencies. Standard library only.
+# Requires Python >= 3.10 (uses PEP 604 unions under `from __future__ import annotations`).
