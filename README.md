@@ -35,6 +35,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── agent0
 │   ├── example
 │   ├── garak
+│   ├── haystack
 │   ├── Langflow_v1.0.12
 │   ├── LangGrinch
 │   ├── langchain
@@ -46,6 +47,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 ├── LICENSE
 ├── README.md
 ├── sandboxes
+│   ├── agentic_local_haystack
 │   ├── agentic_local_langchain
 │   ├── agentic_local_n8n_v1.65.0
 │   ├── agentic_local_semantickernel
@@ -192,6 +194,9 @@ uv --version
 *   **[LangChain Orchestration Poisoning Sandbox](sandboxes/agentic_local_langchain/README.md)**
     *   **Summary**: A containerized sandbox running **LangChain-core v1.2.24 through latest** (tested up to v1.6.0 as of August 2026) demonstrating **critical Insecure Orchestration vulnerabilities**. Students bypass **CVE-2026-34070** (direct path traversal — patched in v1.2.25+), **CVE-2023-36258** (symlink suffix bypass — **NEVER PATCHED**), and the **unpatched write primitive** (`.save()` — **NO CVE ASSIGNED**). The sandbox simulates the real-world patch lifecycle across 5 stages, proving that symlink reads and the write-side `.save()` method remain exploitable in every version tested. Includes a pre-created symlink (`/app/config.json` → `/app/config.txt`) to demonstrate CWE-59 (Improper Link Resolution). Reference: [JDP-2026-004](https://jdp-security.github.io/security-research-papers/2026-05-12-langchain-orchestration-poisoning-disclosure.html) — CVSS 10.0 Critical.
 
+*   **[Haystack Serialization Evasion Sandbox](sandboxes/agentic_local_haystack/README.md)**
+    *   **Summary**: A containerized sandbox running **Deepset Haystack (`haystack-ai` v2.27.0)** demonstrating a **critical Serialization Boundary Evasion vulnerability (JDP-2026-005)**. The `default_from_dict()` deserialization method passes all `init_parameters` directly to component constructors without stripping security-critical flags, allowing an attacker to bypass the `unsafe=False` boundary and achieve persistent Remote Code Execution (RCE) via Jinja2 SSTI breakout. The sandbox exposes a Flask API with `/chat` (pipeline loading) and `/verify` (integrity check) endpoints. Both `OutputAdapter` and `ConditionalRouter` components are affected. Reference: [JDP-2026-005](https://jdp-security.github.io/security-research-papers/2026-05-13-deepset-haystack-disclosure.html) — CVSS 10.0 Critical.
+
 ### `exploitation/`
 
 *   **[Red Team Example](exploitation/example/README.md)**
@@ -254,6 +259,23 @@ uv --version
         *   RCE chain achievable via framework source overwrite
 
         **Reference:** [JDP-2026-004 White Paper](https://jdp-security.github.io/security-research-papers/2026-05-12-langchain-orchestration-poisoning-disclosure.html)
+
+*   **[Haystack Serialization Evasion Trainer](exploitation/haystack/README.md)**
+    *   **Summary**: An interactive training wizard and automated verification suite demonstrating a **critical Serialization Boundary Evasion vulnerability (JDP-2026-005)** in Deepset Haystack (`haystack-ai` v2.27.0). Students learn how `from_dict()` deserialization bypasses the `unsafe=False` security boundary, enabling persistent framework compromise via `__init__.py` overwrite — achieving a CVSS Scope Change (S:C) that survives application restarts.
+
+        **Includes:**
+        *   `interactive_trainer.py`: Menu-driven CLI with 6 lessons (Baseline, YAML Bypass, Full RCE, Scope Change, Mitigation, Attack Vectors) plus auto-pilot mode and built-in container management. Supports custom YAML/JSON payloads and multi-line paste.
+        *   `payloads/`: Pre-built exploit payloads demonstrating OutputAdapter bypass, ConditionalRouter bypass, and persistent RCE.
+        *   `submission_audit.md`: Full vulnerability validation and audit report.
+
+        **Key Findings:**
+        *   Serialization boundary evasion via `default_from_dict()` — no `unsafe` flag stripping
+        *   Both `OutputAdapter` and `ConditionalRouter` components affected
+        *   Persistent framework compromise via `haystack/__init__.py` overwrite
+        *   4 attack vectors: Direct API call, file-based loading, database poisoning, message queue injection
+        *   Vendor classification: "Trusted configuration behavior" — no fix planned
+
+        **Reference:** [JDP-2026-005 White Paper](https://jdp-security.github.io/security-research-papers/2026-05-13-deepset-haystack-disclosure.html)
 
 ### `tutorials/`
 
