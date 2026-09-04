@@ -1,0 +1,19 @@
+# Clean Haystack vulnerability lab container
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y curl jq && rm -rf /var/lib/apt/lists/*
+
+# Install a clean, vulnerable version of Haystack
+RUN pip install --no-cache-dir haystack-ai==2.27.0 pyyaml fastapi uvicorn
+
+# Copy only the server code (not any modified framework files)
+COPY app/ /app/app/
+
+EXPOSE 8000
+
+ENTRYPOINT ["python", "/app/app/server.py"]
+
