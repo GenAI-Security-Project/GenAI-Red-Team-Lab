@@ -18,8 +18,7 @@ def init_db():
     """Create both memory tables if they don't already exist. Call this once on startup."""
     con = sqlite3.connect(str(DB_PATH))
     cur = con.cursor()
-    cur.execute(
-        """
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS conversation_log (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             session_id TEXT,
@@ -27,18 +26,15 @@ def init_db():
             content TEXT,
             created_at REAL
         )
-    """
-    )
-    cur.execute(
-        """
+    """)
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS long_term_memory (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             source_session_id TEXT,
             fact TEXT,
             created_at REAL
         )
-    """
-    )
+    """)
     con.commit()
     con.close()
 
@@ -49,8 +45,7 @@ def log_message(session_id, role, content):
 
     con = sqlite3.connect(str(DB_PATH))
     cur = con.cursor()
-    cur.execute(
-        """
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS conversation_log (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           session_id TEXT,
@@ -58,8 +53,7 @@ def log_message(session_id, role, content):
           content TEXT,
           created_at REAL
         )
-    """
-    )
+    """)
     cur.execute(
         """
         INSERT INTO conversation_log (session_id, role, content, created_at)
@@ -105,15 +99,13 @@ def extract_and_store_facts(source_session_id, user_message):
         fact = user_message[idx:]
         con = sqlite3.connect(str(DB_PATH))
         cur = con.cursor()
-        cur.execute(
-            """
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS long_term_memory (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             source_session_id TEXT,
             fact TEXT,
             created_at REAL)
-            """
-        )
+            """)
         cur.execute(
             """
             INSERT INTO long_term_memory (source_session_id, fact, created_at)
