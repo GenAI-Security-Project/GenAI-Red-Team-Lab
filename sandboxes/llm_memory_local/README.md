@@ -43,10 +43,10 @@ graph TB
     AppLogic --> API
     API -->|Response| Client
     
-    style Client fill:#e1f5ff
-    style API fill:#fff4e1
-    style AppLogic fill:#fff4e1
-    style LLM fill:#ffe1f5
+    style Client fill:#e1f5ff,color:#1a1a1a
+    style API fill:#fff4e1,color:#1a1a1a
+    style AppLogic fill:#fff4e1,color:#1a1a1a
+    style LLM fill:#ffe1f5,color:#1a1a1a
 ```
 
 ### Local Mock Setup (This Template)
@@ -81,12 +81,12 @@ graph LR
     MockAPI -->|Response| TestClient
     MockLogic <--> Memory
     
-    style GradioUI fill:#e1f5ff
-    style TestClient fill:#e1f5ff
-    style MockAPI fill:#fff4e1
-    style MockLogic fill:#fff4e1
-    style Ollama fill:#ffe1f5
-    style Model fill:#ffe1f5
+    style GradioUI fill:#e1f5ff,color:#1a1a1a
+    style TestClient fill:#e1f5ff,color:#1a1a1a
+    style MockAPI fill:#fff4e1,color:#1a1a1a
+    style MockLogic fill:#fff4e1,color:#1a1a1a
+    style Ollama fill:#ffe1f5,color:#1a1a1a
+    style Model fill:#ffe1f5,color:#1a1a1a
 ```
 
 **Mapping to Production:**
