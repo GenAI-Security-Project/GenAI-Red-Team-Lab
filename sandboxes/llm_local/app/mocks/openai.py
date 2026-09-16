@@ -70,6 +70,26 @@ client = OpenAI(
 )
 
 
+@router.get("/v1/models")
+def list_models(token: str = Depends(verify_api_key)) -> Any:
+    """OpenAI-compatible models list endpoint, proxied from the Ollama backend.
+
+    Many OpenAI-compatible clients use GET /v1/models as a preflight liveness
+    check before sending any chat request. Without this route, such a check
+    fails and reports a working sandbox as unreachable.
+
+    Returns:
+        Any: OpenAI-compatible model list response from Ollama.
+
+    Raises:
+        HTTPException: If the Ollama backend returns an error (status 500).
+    """
+    try:
+        return client.models.list()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post("/v1/chat/completions")
 def chat_completions(
     request: ChatCompletionRequest, token: str = Depends(verify_api_key)
