@@ -40,6 +40,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── langchain
 │   ├── Langflow_v1.0.12
 │   ├── LangGrinch
+│   ├── llamaindex
 │   ├── LocalAI_v2.17.1
 │   ├── memory_poisoning
 │   ├── n8n_RCE_via_file_write
@@ -52,6 +53,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 ├── sandboxes
 │   ├── agentic_local_haystack
 │   ├── agentic_local_langchain
+│   ├── agentic_local_llamaindex
 │   ├── agentic_local_n8n_v1.65.0
 │   ├── agentic_local_semantickernel
 │   ├── llm_local
@@ -69,6 +71,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
     ├── evaluation_framework_passk
     ├── fake_testing_mode_prompt_injection_tutorial.md
     ├── langchain_orchestration_poisoning_tutorial.md
+    ├── llamaindex_orchestration_security_tutorial.md
     ├── llm_chatbot_system_prompt_exfiltration.md
     ├── multi_technique_guardrail_bypass_evaluation.md
     ├── multi_turn_safety_bypass_and_system_role_override.md
@@ -209,6 +212,10 @@ uv --version
 
 *   **[Haystack Serialization Evasion Sandbox](sandboxes/agentic_local_haystack/README.md)**
     *   **Summary**: A containerized sandbox running **Deepset Haystack (`haystack-ai` v2.27.0)** demonstrating a **critical Serialization Boundary Evasion vulnerability**. The `default_from_dict()` deserialization method passes all `init_parameters` directly to component constructors without stripping security-critical flags, allowing an attacker to bypass the `unsafe=False` boundary and achieve persistent Remote Code Execution (RCE) via Jinja2 SSTI breakout. The sandbox exposes a Flask API with `/chat` (pipeline loading) and `/verify` (integrity check) endpoints. Both `OutputAdapter` and `ConditionalRouter` components are affected. Reference: [JDP-2026-005](https://jdp-security.github.io/security-research-papers/2026-05-13-deepset-haystack-disclosure.html) — CVSS 10.0 Critical.
+
+*   **[LlamaIndex Orchestration Poisoning Sandbox](sandboxes/agentic_local_llamaindex/README.md)**
+    *   **Summary**: A containerized sandbox running **llama-index-core v0.14.19 through v0.14.21+** (Stage 3 adds workflows v2.14.0) demonstrating **critical Insecure Orchestration vulnerabilities across 4 vendor response stages**. Students exploit unpatched **CWE-22 path traversal** in `SimpleKVStore.persist()` (never remediated), real-world `StorageContext.persist()` persistence vectors, and analyze incomplete vendor remediation (`dataset.py` shadow-deleted with no CVE assigned / PyPI drift). Includes interactive stage switching (`STAGE=0` to `3`) and automated verification. Reference: [JDP-2026-003](https://jdp-security.github.io/security-research-papers/2026-05-12-llamaindex-selfnuke-disclosure.html) — CVSS 10.0 Critical.
+
 *   **[LLM Memory Local Sandbox](sandboxes/llm_memory_local/README.md)**
     *   **Summary**: A local sandbox environment for testing conversation memory poisoning vulnerabilities. It demonstrates how an attacker can instruct an LLM to persist unscoped facts in SQLite memory, which systematically influences future sessions initiated by other users.
 
@@ -301,6 +308,21 @@ uv --version
 
         **Reference:** [JDP-2026-005 White Paper](https://jdp-security.github.io/security-research-papers/2026-05-13-deepset-haystack-disclosure.html)
 
+*   **[LlamaIndex Orchestration Poisoning Trainer](exploitation/llamaindex/README.md)**
+    *   **Summary**: An interactive training wizard and verification suite demonstrating **critical Insecure Orchestration vulnerabilities** in `llama-index-core` across **4 vendor response stages** (v0.14.19 through v0.14.21+). Students learn to exploit unpatched **CWE-22 path traversal** in `SimpleKVStore.persist()`, `StorageContext.persist()` real-world persistence wrappers, and analyze partial vendor remediation (`dataset.py` shadow-deleted as collateral cleanup with no CVE assigned / PyPI drift).
+
+        **Includes:**
+        *   `interactive_trainer.py`: Menu-driven CLI with 9 interactive lessons (including hands-on `StorageContext` boundary bypass and custom payload sandbox) across 4 stages with built-in container management
+        *   `submission_audit.md`: Full vulnerability validation and audit report
+
+        **Key Findings:**
+        *   Path traversal in `SimpleKVStore.persist()` **NEVER PATCHED** across all stages
+        *   `StorageContext.persist()` wrapper allows arbitrary file write & persistent framework DoS
+        *   Vendor shadow-deleted `dataset.py` in Stage 1 without assigning a CVE
+        *   PyPI drift leaves deleted PoC target functional in Stage 1 wheel
+
+        **Reference:** [JDP-2026-003 White Paper](https://jdp-security.github.io/security-research-papers/2026-05-12-llamaindex-selfnuke-disclosure.html)
+
 ### `tutorials/`
 
 *   **[Community Resources for Agentic AI Red Teaming](tutorials/community_resources.md)**
@@ -326,6 +348,9 @@ uv --version
 
 *   **[LangChain Orchestration Poisoning Tutorial](tutorials/langchain_orchestration_poisoning_tutorial.md)**
     * **Summary**: A deep-dive tutorial covering the exploitation and remediation of Insecure Orchestration vulnerabilities in LangChain-core (CVE-2026-34070 path traversal and CVE-2023-36258 symlink suffix bypass).
+
+*   **[LlamaIndex Orchestration Security Tutorial](tutorials/llamaindex_orchestration_security_tutorial.md)**
+    * **Summary**: A comprehensive tutorial analyzing unpatched Insecure Orchestration vulnerabilities in `llama-index-core`, covering path traversal in `SimpleKVStore.persist()`, `StorageContext.persist()` exploitation, PyPI drift, and supply chain risks of silent vendor remediation.
 
 *   **[Semantic Kernel Orchestration Security Tutorial](tutorials/semantickernel_orchestration_security_tutorial.md)**
     * **Summary**: A comprehensive tutorial analyzing the 6 Type Confusion bypass vectors for CVE-2026-25592 and AutoInvoke Shell Blinding (CWE-1039) in Microsoft Semantic Kernel.
