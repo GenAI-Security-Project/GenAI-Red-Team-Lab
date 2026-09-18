@@ -1,0 +1,25 @@
+# Stage 2: llama-index-core v0.14.21+ (Logic Migrated)
+# dataset.py logic migrated to workflows sub-package via commit e8b22d9
+# SimpleKVStore.persist() STILL VULNERABLE - core vulnerability NEVER patched
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1
+ENV LAB_STAGE=2
+
+RUN apt-get update && apt-get install -y curl jq && rm -rf /var/lib/apt/lists/*
+
+# Install the version where dataset logic was migrated out
+RUN pip install --no-cache-dir llama-index-core==0.14.21 flask
+
+# Create sandbox data directory
+RUN mkdir -p /app/sandbox_data
+
+# Copy server code
+COPY app/ /app/app/
+
+EXPOSE 8000
+
+ENTRYPOINT ["python", "-u", "/app/app/server.py"]

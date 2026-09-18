@@ -1,0 +1,25 @@
+# Stage 1: llama-index-core v0.14.20 (Shadow Patched)
+# dataset.py DELETED via commit 7049c97d ("remaining cleanup, uv lock bump")
+# SimpleKVStore.persist() STILL VULNERABLE - no path validation added
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1
+ENV LAB_STAGE=1
+
+RUN apt-get update && apt-get install -y curl jq && rm -rf /var/lib/apt/lists/*
+
+# Install the "patched" version where dataset.py was deleted
+RUN pip install --no-cache-dir llama-index-core==0.14.20 flask
+
+# Create sandbox data directory
+RUN mkdir -p /app/sandbox_data
+
+# Copy server code
+COPY app/ /app/app/
+
+EXPOSE 8000
+
+ENTRYPOINT ["python", "-u", "/app/app/server.py"]
