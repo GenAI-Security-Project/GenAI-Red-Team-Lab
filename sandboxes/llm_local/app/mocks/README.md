@@ -12,6 +12,26 @@ app/mocks/
 └── [future_service].py      # Add new mocks here
 ```
 
+## The OpenAI Mock (`openai.py`)
+
+Section 4 below asks every mock to say which endpoints it serves and what the credentials are.
+Here is that, for the one mock this sandbox ships.
+
+| Method | Path | Backend | Purpose |
+|---|---|---|---|
+| `GET` | `/v1/models` | none — answered from config | Liveness: what the sandbox is configured to serve |
+| `POST` | `/v1/chat/completions` | Ollama | Chat completions, proxied |
+
+Both routes require `Authorization: Bearer sk-mock-key`. The key is not a secret: `make up`
+prints it, the clients hardcode it, and the sandbox READMEs list it.
+
+`GET /v1/models` deliberately does not ask Ollama. A client calls it to find out whether the
+sandbox is up, so a sandbox that is running but still pulling a model should not answer 500.
+The cost of that choice is that the route can list a model the first completion then fails on;
+`POST /v1/chat/completions` still returns backend failures as a 500.
+
+The model id comes from `OLLAMA_MODEL`, defaulting to `gpt-oss:20b`.
+
 ## Why Mirascope?
 
 For this project, we have chosen **Mirascope** over other frameworks like LangChain for several key reasons that align with our goals of security, clarity, and developer experience.
