@@ -20,11 +20,16 @@ os.environ["OPENAI_BASE_URL"] = os.getenv(
 router = APIRouter()
 
 
-def verify_api_key(authorization: str = Header(...)) -> str:
+def verify_api_key(authorization: Optional[str] = Header(default=None)) -> str:
     """Mock API key verification for testing purposes.
 
     In a real implementation, this would validate against a database or secret store.
     For testing purposes, we accept a simple mock key.
+
+    The header is declared optional so that a request sending none gets a 401 naming
+    the expected credential, instead of FastAPI's 422 about a missing required header.
+    The mock key is not a secret: `make up` prints it, both clients hardcode it, and
+    four READMEs list it.
 
     Args:
         authorization: Authorization header value (e.g., "Bearer sk-mock-key").
@@ -33,8 +38,14 @@ def verify_api_key(authorization: str = Header(...)) -> str:
         str: The extracted API key token.
 
     Raises:
-        HTTPException: If authentication scheme is invalid or API key doesn't match.
+        HTTPException: If the header is absent, the scheme is not Bearer, or the key
+            does not match.
     """
+    if authorization is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Missing Authorization header, expected: Bearer sk-mock-key",
+        )
     if not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Invalid authentication scheme")
     token = authorization.split(" ")[1]
@@ -68,6 +79,56 @@ client = OpenAI(
     base_url=os.getenv("OLLAMA_BASE_URL", "http://host.containers.internal:11434/v1"),
     api_key="ollama",
 )
+
+
+class Model(BaseModel):
+    """One entry of an OpenAI-compatible model list.
+
+    Attributes:
+        id: Model name as the backend knows it (e.g. "gpt-oss:20b").
+        object: Always "model", for OpenAI client compatibility.
+        created: Unix timestamp; the mock has no creation time, so 0.
+        owned_by: Owner string; "ollama" for this sandbox.
+    """
+
+    id: str
+    object: str = "model"
+    created: int = 0
+    owned_by: str = "ollama"
+
+
+class ModelList(BaseModel):
+    """Response model for the models endpoint.
+
+    Attributes:
+        object: Always "list", for OpenAI client compatibility.
+        data: The available models.
+    """
+
+    object: str = "list"
+    data: List[Model]
+
+
+@router.get("/v1/models")
+def list_models(token: str = Depends(verify_api_key)) -> ModelList:
+    """Mock OpenAI models endpoint, answered from the sandbox's own configuration.
+
+    Clients call this route to find out whether the sandbox is up before they send
+    anything. It therefore does NOT ask Ollama: a sandbox that is running but still
+    pulling a model would answer 500, which is the same false negative as the 404
+    this endpoint replaces, one layer down.
+
+    The trade-off: listing from config can advertise a model that the first completion
+    then fails on. POST /v1/chat/completions still surfaces backend failures as a 500,
+    so the caller learns about the backend from the request it wanted to make.
+
+    Args:
+        token: Validated API key token from dependency injection.
+
+    Returns:
+        ModelList: The model this sandbox is configured to serve.
+    """
+    return ModelList(data=[Model(id=os.getenv("OLLAMA_MODEL", "gpt-oss:20b"))])
 
 
 @router.post("/v1/chat/completions")
