@@ -12,6 +12,7 @@ Enforces compliance rules:
   (b) Description must not start with "Summary:" or "**Summary**:" (or "**Sumamary**:").
   (c) Description must only use standard security identifiers (CWE, CVE, OWASP) and omit non-standard advisory references.
   (d) All sub-projects, sandboxes, exploits, and tutorials must be indexed.
+  (e) Directory structure tree in root README.md must be up to date with repository contents.
 
 Usage:
   python3 clean_readme_indexes.py --check   # Audit only (returns non-zero exit code if issues found)
@@ -562,6 +563,62 @@ def audit_and_fix_root_readme(apply_fix: bool) -> list[str]:
     return issues
 
 
+def generate_directory_tree() -> str:
+    """Generates the directory tree representation up to depth 2,
+    matching the format of the ## Directory Structure section in README.md.
+    """
+    top_entries = ["CONTRIBUTING.md", "exploitation", "LICENSE", "README.md", "sandboxes", "tutorials"]
+    lines = ["."]
+    for idx, name in enumerate(top_entries):
+        is_last_top = (idx == len(top_entries) - 1)
+        top_prefix = "└── " if is_last_top else "├── "
+        child_indent = "    " if is_last_top else "│   "
+
+        path = REPO_ROOT / name
+        if path.is_dir():
+            lines.append(f"{top_prefix}{name}")
+            children = sorted(
+                [
+                    c.name
+                    for c in path.iterdir()
+                    if not c.name.startswith(".") and c.name != "__pycache__"
+                ],
+                key=lambda s: s.lower(),
+            )
+            for c_idx, c_name in enumerate(children):
+                is_last_child = (c_idx == len(children) - 1)
+                c_prefix = "└── " if is_last_child else "├── "
+                lines.append(f"{child_indent}{c_prefix}{c_name}")
+        else:
+            lines.append(f"{top_prefix}{name}")
+
+    return "\n".join(lines)
+
+
+def audit_and_fix_directory_tree(apply_fix: bool) -> list[str]:
+    """Audits and optionally synchronizes the ## Directory Structure section in README.md."""
+    path = TARGET_FILES["root"]
+    content = path.read_text(encoding="utf-8")
+    issues = []
+
+    expected_tree = generate_directory_tree()
+    tree_pattern = re.compile(r"(## Directory Structure\s*\n+```text\n)([\s\S]*?)(\n```)", re.MULTILINE)
+    match = tree_pattern.search(content)
+
+    if not match:
+        issues.append("README.md: Could not locate '## Directory Structure' ```text block")
+        return issues
+
+    current_tree = match.group(2).strip()
+    if current_tree != expected_tree.strip():
+        issues.append("README.md: Directory structure tree is out of date")
+        if apply_fix:
+            new_content = tree_pattern.sub(rf"\g<1>{expected_tree}\g<3>", content)
+            path.write_text(new_content, encoding="utf-8")
+
+    return issues
+
+
 def main():
     parser = argparse.ArgumentParser(description="Audit and synchronize README indexes for compliance.")
     parser.add_argument("--fix", action="store_true", help="Apply fixes and synchronize missing entries.")
@@ -574,6 +631,7 @@ def main():
     print("=== House-Cleaning: README Index Audit & Sync ===")
     print(f"Mode: {'FIX (applying changes)' if apply_fix else 'CHECK (audit only)'}\n")
 
+    all_issues.extend(audit_and_fix_directory_tree(apply_fix))
     all_issues.extend(audit_and_fix_sandboxes_readme(apply_fix))
     all_issues.extend(audit_and_fix_exploitation_readme(apply_fix))
     all_issues.extend(audit_and_fix_tutorials_readme(apply_fix))
@@ -589,6 +647,7 @@ def main():
     if apply_fix:
         print("\nFixes applied successfully. Re-running audit to confirm clean state...")
         post_issues = []
+        post_issues.extend(audit_and_fix_directory_tree(False))
         post_issues.extend(audit_and_fix_sandboxes_readme(False))
         post_issues.extend(audit_and_fix_exploitation_readme(False))
         post_issues.extend(audit_and_fix_tutorials_readme(False))

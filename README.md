@@ -46,6 +46,8 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── n8n_RCE_via_file_write
 │   ├── Ni8mare
 │   ├── promptfoo
+│   ├── README.md
+│   ├── recommendation_poisoning
 │   ├── semantickernel
 │   └── system_reconnaissance
 ├── LICENSE
@@ -57,12 +59,12 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── agentic_local_n8n_v1.65.0
 │   ├── agentic_local_semantickernel
 │   ├── llm_local
-│   ├── llm_remote
 │   ├── llm_local_InvokeAI_v5.3.0
 │   ├── llm_local_langchain_core_v1.2.4
 │   ├── llm_local_langflow_v1.0.12
 │   ├── llm_local_localAI_v2.17.1
 │   ├── llm_memory_local
+│   ├── llm_remote
 │   ├── mcp_local
 │   ├── RAG_local
 │   └── README.md
@@ -70,6 +72,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
     ├── community_resources.md
     ├── evaluation_framework_passk
     ├── fake_testing_mode_prompt_injection_tutorial.md
+    ├── haystack_orchestration_security_tutorial.md
     ├── langchain_orchestration_poisoning_tutorial.md
     ├── llamaindex_orchestration_security_tutorial.md
     ├── llm_chatbot_system_prompt_exfiltration.md
