@@ -61,13 +61,18 @@ class ModelsEndpointTest(TestCase):
 class AuthTest(TestCase):
     """The four ways a request can present (or fail to present) the mock key."""
 
-    def test_missing_header_names_the_expected_credential(self):
+    def test_missing_header_gets_a_401_that_names_no_credential(self):
+        """A red-teaming tool reads a named credential in an error body as a leak.
+
+        The detail used to be "Missing Authorization header, expected: Bearer sk-mock-key".
+        agent0 and tools like it flag that as secret leakage, which is a false positive
+        against a sandbox whose key is public by design. The 401 still answers the question
+        a client has, which is that the header is missing.
+        """
         response = build_client().get("/v1/models")
         self.assertEqual(response.status_code, 401)
-        self.assertEqual(
-            response.json()["detail"],
-            "Missing Authorization header, expected: Bearer sk-mock-key",
-        )
+        self.assertEqual(response.json()["detail"], "Missing Authorization header")
+        self.assertNotIn("sk-mock-key", response.text)
 
     def test_non_bearer_scheme_is_rejected(self):
         response = build_client().get(

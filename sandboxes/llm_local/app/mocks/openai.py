@@ -44,7 +44,7 @@ def verify_api_key(authorization: Optional[str] = Header(default=None)) -> str:
     if authorization is None:
         raise HTTPException(
             status_code=401,
-            detail="Missing Authorization header, expected: Bearer sk-mock-key",
+            detail="Missing Authorization header",
         )
     if not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Invalid authentication scheme")
