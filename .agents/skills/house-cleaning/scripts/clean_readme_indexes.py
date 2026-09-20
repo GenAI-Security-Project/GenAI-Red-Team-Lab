@@ -221,7 +221,7 @@ def audit_and_fix_sandboxes_readme(apply_fix: bool) -> list[str]:
             desc = match.group(3).strip()
             # If description is on subsequent line(s)
             full_desc = desc
-            if not full_desc and i + 1 < len(lines) and not lines[i + 1].strip().startswith("*") and not lines[i + 1].startswith("##"):
+            while not full_desc and i + 1 < len(lines) and not lines[i + 1].strip().startswith("*") and not lines[i + 1].startswith("##"):
                 i += 1
                 full_desc = lines[i].strip()
 
@@ -234,7 +234,6 @@ def audit_and_fix_sandboxes_readme(apply_fix: bool) -> list[str]:
                 cleaned = CURATED_SUMMARIES[name]
 
             compliant, reasons = is_compliant(cleaned)
-            # Check if original was inline or subitem instead of indented paragraph
             is_inline = bool(desc)
             if is_inline:
                 reasons.append("Summary is inline instead of indented paragraph")
@@ -244,11 +243,17 @@ def audit_and_fix_sandboxes_readme(apply_fix: bool) -> list[str]:
 
             if apply_fix:
                 new_lines.append(f"*   **`{name}/`**")
+                new_lines.append("")
                 new_lines.append(f"    {cleaned}")
+                new_lines.append("")
             else:
                 new_lines.append(line)
         else:
-            new_lines.append(line)
+            # Avoid consecutive empty lines
+            if line.strip() == "" and new_lines and new_lines[-1].strip() == "":
+                pass
+            else:
+                new_lines.append(line)
         i += 1
 
     if apply_fix:
@@ -256,14 +261,13 @@ def audit_and_fix_sandboxes_readme(apply_fix: bool) -> list[str]:
             pattern = rf"\*\s+\*\*`{re.escape(s)}/?`\*\*"
             if not re.search(pattern, "\n".join(new_lines)):
                 desc = CURATED_SUMMARIES.get(s, f"Sandbox environment for {s}.")
-                entry = f"*   **`{s}/`**\n    {desc}"
+                entry = f"*   **`{s}/`**\n\n    {desc}\n"
                 usage_idx = next((idx for idx, l in enumerate(new_lines) if l.startswith("## Usage")), -1)
                 if usage_idx != -1:
                     new_lines.insert(usage_idx - 1, entry)
-                    new_lines.insert(usage_idx, "")
                 else:
                     new_lines.append(entry)
-        path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+        path.write_text("\n".join(new_lines).strip() + "\n", encoding="utf-8")
 
     return issues
 
@@ -294,7 +298,7 @@ def audit_and_fix_exploitation_readme(apply_fix: bool) -> list[str]:
             name = match.group(2).rstrip("/")
             desc = match.group(3).strip()
             full_desc = desc
-            if not full_desc and i + 1 < len(lines) and not lines[i + 1].strip().startswith("*") and not lines[i + 1].startswith("##"):
+            while not full_desc and i + 1 < len(lines) and not lines[i + 1].strip().startswith("*") and not lines[i + 1].startswith("##"):
                 i += 1
                 full_desc = lines[i].strip()
 
@@ -316,11 +320,16 @@ def audit_and_fix_exploitation_readme(apply_fix: bool) -> list[str]:
 
             if apply_fix:
                 new_lines.append(f"*   **`{name}/`**")
+                new_lines.append("")
                 new_lines.append(f"    {cleaned}")
+                new_lines.append("")
             else:
                 new_lines.append(line)
         else:
-            new_lines.append(line)
+            if line.strip() == "" and new_lines and new_lines[-1].strip() == "":
+                pass
+            else:
+                new_lines.append(line)
         i += 1
 
     if apply_fix:
@@ -328,14 +337,13 @@ def audit_and_fix_exploitation_readme(apply_fix: bool) -> list[str]:
             pattern = rf"\*\s+\*\*`{re.escape(exp)}/?`\*\*"
             if not re.search(pattern, "\n".join(new_lines)):
                 desc = CURATED_SUMMARIES.get(exp, f"Exploitation module for {exp}.")
-                entry = f"*   **`{exp}/`**\n    {desc}"
+                entry = f"*   **`{exp}/`**\n\n    {desc}\n"
                 usage_idx = next((idx for idx, l in enumerate(new_lines) if l.startswith("## Usage")), -1)
                 if usage_idx != -1:
                     new_lines.insert(usage_idx - 1, entry)
-                    new_lines.insert(usage_idx, "")
                 else:
                     new_lines.append(entry)
-        path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+        path.write_text("\n".join(new_lines).strip() + "\n", encoding="utf-8")
 
     return issues
 
@@ -449,6 +457,7 @@ def audit_and_fix_root_readme(apply_fix: bool) -> list[str]:
             if item_match:
                 current_item = item_match.group(2)
                 new_lines.append(line)
+                new_lines.append("")
                 i += 1
                 continue
 
@@ -509,9 +518,13 @@ def audit_and_fix_root_readme(apply_fix: bool) -> list[str]:
                     issues.append(f"README.md [{current_item}]: {', '.join(reasons or ['Adjusted for compliance'])}")
 
                 if apply_fix:
-                    new_lines.append(f"    {full_desc}")
+                    new_lines.append(f"    {full_desc}\n")
                 else:
                     new_lines.append(line)
+                i += 1
+                continue
+
+            if line.strip() == "" and new_lines and new_lines[-1].strip() == "":
                 i += 1
                 continue
 

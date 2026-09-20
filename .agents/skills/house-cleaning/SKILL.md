@@ -47,11 +47,13 @@ The following README files maintain indexes of sub-projects, sandboxes, exploits
 Every indexed item across all target README files must adhere to the following rules:
 
 1. **Format & Structural Layout**:
-   - Each directory entry must be an item followed by an **indented paragraph** (not a subitem):
+   - Each directory entry must be an item followed by a line break and an **indented paragraph** (not a subitem):
      ```markdown
      *   **`dir_name/`** (or `*   **[Title](path)**`)
+
          [Indented summary paragraph]
      ```
+   - **Line Break**: Include a blank line between the item header and the indented summary paragraph for clean visual separation.
    - **Not a subitem**: The summary must **never** be a bulleted subitem (do not use `*   summary` or `-   summary`). It must be an indented paragraph belonging to the parent list item.
 
 2. **Length & Paragraph Constraint**:
