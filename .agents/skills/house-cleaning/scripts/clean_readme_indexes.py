@@ -205,7 +205,7 @@ def audit_and_fix_sandboxes_readme(apply_fix: bool) -> list[str]:
     )
 
     for s in disk_sandboxes:
-        pattern = rf"\*\s+\*\*`{re.escape(s)}/?`\*\*:"
+        pattern = rf"\*\s+\*\*`{re.escape(s)}/?`\*\*"
         if not re.search(pattern, content):
             issues.append(f"sandboxes/README.md: Missing entry for sandbox `{s}/`")
 
@@ -214,12 +214,18 @@ def audit_and_fix_sandboxes_readme(apply_fix: bool) -> list[str]:
     i = 0
     while i < len(lines):
         line = lines[i]
-        match = re.match(r"^(\s*\*\s+\*\*`([^`]+)`\*\*:\s*)(.*)", line)
+        # Match header line: *   **`name/`** or *   **`name/`**: [desc]
+        match = re.match(r"^(\s*\*\s+\*\*`([^`]+)`\*\*):?\s*(.*)", line)
         if match:
             name = match.group(2).rstrip("/")
-            desc = match.group(3)
+            desc = match.group(3).strip()
+            # If description is on subsequent line(s)
             full_desc = desc
-            while i + 1 < len(lines) and lines[i + 1].strip() and not lines[i + 1].lstrip().startswith("*"):
+            if not full_desc and i + 1 < len(lines) and not lines[i + 1].strip().startswith("*") and not lines[i + 1].startswith("##"):
+                i += 1
+                full_desc = lines[i].strip()
+
+            while i + 1 < len(lines) and lines[i + 1].strip() and not lines[i + 1].lstrip().startswith("*") and not lines[i + 1].startswith("##"):
                 i += 1
                 full_desc += " " + lines[i].strip()
 
@@ -228,11 +234,17 @@ def audit_and_fix_sandboxes_readme(apply_fix: bool) -> list[str]:
                 cleaned = CURATED_SUMMARIES[name]
 
             compliant, reasons = is_compliant(cleaned)
-            if not compliant or cleaned != full_desc:
+            # Check if original was inline or subitem instead of indented paragraph
+            is_inline = bool(desc)
+            if is_inline:
+                reasons.append("Summary is inline instead of indented paragraph")
+
+            if not compliant or is_inline or cleaned != full_desc:
                 issues.append(f"sandboxes/README.md [`{name}`]: {', '.join(reasons or ['Adjusted for compliance'])}")
 
             if apply_fix:
-                new_lines.append(f"*   **`{name}/`**: {cleaned}")
+                new_lines.append(f"*   **`{name}/`**")
+                new_lines.append(f"    {cleaned}")
             else:
                 new_lines.append(line)
         else:
@@ -241,10 +253,10 @@ def audit_and_fix_sandboxes_readme(apply_fix: bool) -> list[str]:
 
     if apply_fix:
         for s in disk_sandboxes:
-            pattern = rf"\*\s+\*\*`{re.escape(s)}/?`\*\*:"
+            pattern = rf"\*\s+\*\*`{re.escape(s)}/?`\*\*"
             if not re.search(pattern, "\n".join(new_lines)):
                 desc = CURATED_SUMMARIES.get(s, f"Sandbox environment for {s}.")
-                entry = f"*   **`{s}/`**: {desc}"
+                entry = f"*   **`{s}/`**\n    {desc}"
                 usage_idx = next((idx for idx, l in enumerate(new_lines) if l.startswith("## Usage")), -1)
                 if usage_idx != -1:
                     new_lines.insert(usage_idx - 1, entry)
@@ -268,7 +280,7 @@ def audit_and_fix_exploitation_readme(apply_fix: bool) -> list[str]:
     )
 
     for exp in disk_exploits:
-        pattern = rf"\*\s+\*\*`{re.escape(exp)}/?`\*\*:"
+        pattern = rf"\*\s+\*\*`{re.escape(exp)}/?`\*\*"
         if not re.search(pattern, content):
             issues.append(f"exploitation/README.md: Missing entry for exploit `{exp}/`")
 
@@ -277,12 +289,16 @@ def audit_and_fix_exploitation_readme(apply_fix: bool) -> list[str]:
     i = 0
     while i < len(lines):
         line = lines[i]
-        match = re.match(r"^(\s*\*\s+\*\*`([^`]+)`\*\*:\s*)(.*)", line)
+        match = re.match(r"^(\s*\*\s+\*\*`([^`]+)`\*\*):?\s*(.*)", line)
         if match:
             name = match.group(2).rstrip("/")
-            desc = match.group(3)
+            desc = match.group(3).strip()
             full_desc = desc
-            while i + 1 < len(lines) and lines[i + 1].strip() and not lines[i + 1].lstrip().startswith("*"):
+            if not full_desc and i + 1 < len(lines) and not lines[i + 1].strip().startswith("*") and not lines[i + 1].startswith("##"):
+                i += 1
+                full_desc = lines[i].strip()
+
+            while i + 1 < len(lines) and lines[i + 1].strip() and not lines[i + 1].lstrip().startswith("*") and not lines[i + 1].startswith("##"):
                 i += 1
                 full_desc += " " + lines[i].strip()
 
@@ -291,11 +307,16 @@ def audit_and_fix_exploitation_readme(apply_fix: bool) -> list[str]:
                 cleaned = CURATED_SUMMARIES[name]
 
             compliant, reasons = is_compliant(cleaned)
-            if not compliant or cleaned != full_desc:
+            is_inline = bool(desc)
+            if is_inline:
+                reasons.append("Summary is inline instead of indented paragraph")
+
+            if not compliant or is_inline or cleaned != full_desc:
                 issues.append(f"exploitation/README.md [`{name}`]: {', '.join(reasons or ['Adjusted for compliance'])}")
 
             if apply_fix:
-                new_lines.append(f"*   **`{name}/`**: {cleaned}")
+                new_lines.append(f"*   **`{name}/`**")
+                new_lines.append(f"    {cleaned}")
             else:
                 new_lines.append(line)
         else:
@@ -304,10 +325,10 @@ def audit_and_fix_exploitation_readme(apply_fix: bool) -> list[str]:
 
     if apply_fix:
         for exp in disk_exploits:
-            pattern = rf"\*\s+\*\*`{re.escape(exp)}/?`\*\*:"
+            pattern = rf"\*\s+\*\*`{re.escape(exp)}/?`\*\*"
             if not re.search(pattern, "\n".join(new_lines)):
                 desc = CURATED_SUMMARIES.get(exp, f"Exploitation module for {exp}.")
-                entry = f"*   **`{exp}/`**: {desc}"
+                entry = f"*   **`{exp}/`**\n    {desc}"
                 usage_idx = next((idx for idx, l in enumerate(new_lines) if l.startswith("## Usage")), -1)
                 if usage_idx != -1:
                     new_lines.insert(usage_idx - 1, entry)
@@ -437,10 +458,15 @@ def audit_and_fix_root_readme(apply_fix: bool) -> list[str]:
                 i += 1
                 continue
 
-            # Summary lines start with indentation and a bullet: e.g. "    *   " or "    * "
-            summary_bullet_match = re.match(r"^\s{2,6}\*\s+(.*)", line)
-            if summary_bullet_match and not line.strip().startswith("*   **Sub-guides"):
-                raw_after_bullet = summary_bullet_match.group(1)
+            # Summary lines: either indented paragraph "    [desc]" or legacy bullet subitem "    *   [desc]"
+            is_subitem = bool(re.match(r"^\s{2,6}\*\s+(.*)", line)) and not line.strip().startswith("*   **Sub-guides")
+            is_indented_p = bool(re.match(r"^\s{4}(?!\*\s)(.*)", line)) and not line.strip().startswith("*   **Sub-guides")
+
+            if (is_subitem or is_indented_p) and current_item:
+                if is_subitem:
+                    raw_after_bullet = re.match(r"^\s{2,6}\*\s+(.*)", line).group(1)
+                else:
+                    raw_after_bullet = re.match(r"^\s{4}(.*)", line).group(1)
 
                 cleaned = clean_text(raw_after_bullet)
 
@@ -476,12 +502,14 @@ def audit_and_fix_root_readme(apply_fix: bool) -> list[str]:
                 compliant, reasons = is_compliant(full_desc)
                 has_prefix = bool(PREFIX_REGEX.search(raw_after_bullet))
                 has_advisory_ref = bool(NON_STANDARD_ADVISORY_REGEX.search(raw_after_bullet))
+                if is_subitem:
+                    reasons.append("Formatted as a bullet subitem instead of an indented paragraph")
 
-                if not compliant or has_prefix or has_advisory_ref or full_desc != raw_after_bullet:
+                if not compliant or has_prefix or has_advisory_ref or is_subitem or full_desc != raw_after_bullet:
                     issues.append(f"README.md [{current_item}]: {', '.join(reasons or ['Adjusted for compliance'])}")
 
                 if apply_fix:
-                    new_lines.append(f"    *   {full_desc}")
+                    new_lines.append(f"    {full_desc}")
                 else:
                     new_lines.append(line)
                 i += 1
@@ -495,7 +523,7 @@ def audit_and_fix_root_readme(apply_fix: bool) -> list[str]:
         if "haystack_orchestration_security_tutorial.md" not in text_so_far:
             entry = (
                 "\n*   **[Haystack Orchestration Security Tutorial](tutorials/haystack_orchestration_security_tutorial.md)**\n"
-                "    *   A comprehensive tutorial analyzing Serialization Boundary Evasion in Deepset Haystack "
+                "    A comprehensive tutorial analyzing Serialization Boundary Evasion in Deepset Haystack "
                 "(haystack-ai v2.27.0) and demonstrating persistent RCE via Jinja2 SSTI breakout.\n"
             )
             contrib_idx = next((idx for idx, l in enumerate(new_lines) if l.startswith("## Contribution Guide")), -1)
@@ -507,7 +535,7 @@ def audit_and_fix_root_readme(apply_fix: bool) -> list[str]:
         if "recommendation_poisoning" not in text_so_far:
             entry = (
                 "\n*   **[Recommendation Memory Poisoning Exploit](exploitation/recommendation_poisoning/README.md)**\n"
-                "    *   A complete, end-to-end example of a recommendation system memory poisoning attack. "
+                "    A complete, end-to-end example of a recommendation system memory poisoning attack. "
                 "Demonstrates how an attacker can manipulate conversational memory to bias subsequent recommendations across user sessions.\n"
             )
             tut_idx = next((idx for idx, l in enumerate(new_lines) if l.startswith("### `tutorials/`")), -1)
