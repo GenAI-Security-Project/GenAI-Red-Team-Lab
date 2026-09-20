@@ -14,3 +14,5 @@ techniques.
 - [Pass@k Evaluation & Severity Scoring Layer](evaluation_framework_passk/README.md) — A small, tool-agnostic evaluation and severity-scoring layer for red-team results.
 - [LangChain Orchestration Poisoning Tutorial](langchain_orchestration_poisoning_tutorial.md) — A deep-dive tutorial covering the exploitation and remediation of Insecure Orchestration vulnerabilities in LangChain-core.
 - [Semantic Kernel Orchestration Security Tutorial](semantickernel_orchestration_security_tutorial.md) — A comprehensive tutorial analyzing the 6 Type Confusion bypass vectors and AutoInvoke Shell Blinding in Microsoft Semantic Kernel.
+- [Haystack Orchestration Security Tutorial](haystack_orchestration_security_tutorial.md) — A comprehensive tutorial demonstrating Serialization Boundary Evasion in Deepset Haystack and persistent RCE via Jinja2 SSTI breakout.
+- [Llamaindex Orchestration Security Tutorial](llamaindex_orchestration_security_tutorial.md) — A comprehensive tutorial analyzing unpatched Insecure Orchestration vulnerabilities in llama-index-core, covering path traversal in SimpleKVStore.persist(), StorageContext.persist() exploitation, and PyPI drift.
