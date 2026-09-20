@@ -32,6 +32,8 @@ The goal of these sandboxes is to provide ready-to-use, isolated environments wh
 
 *   **`agentic_local_langchain/`**: A containerized sandbox running **LangChain-core v1.2.24 through latest** (tested up to v1.6.0) demonstrating critical Insecure Orchestration vulnerabilities (CVE-2026-34070, CVE-2023-36258, and unpatched `.save()` write primitive).
 
+*   **`agentic_local_llamaindex/`**: A containerized sandbox running **llama-index-core v0.14.19 through v0.14.21+** (Stage 3 adds workflows v2.14.0) demonstrating **critical Insecure Orchestration vulnerabilities across 4 vendor response stages**. Students exploit unpatched **CWE-22 path traversal** in `SimpleKVStore.persist()` (never remediated), real-world `StorageContext.persist()` persistence vectors, and analyze incomplete vendor remediation (`dataset.py` shadow-deleted with no CVE assigned / PyPI drift). Includes interactive stage switching (`STAGE=0` to `3`) and automated verification. Reference: [JDP-2026-003](https://jdp-security.github.io/security-research-papers/2026-05-12-llamaindex-selfnuke-disclosure.html) — CVSS 10.0 Critical.
+
 ## Usage
 
 Each sandbox directory contains its own `README.md` with specific instructions on how to build, run, and use that particular sandbox. Please refer to the individual sandbox documentation for details.

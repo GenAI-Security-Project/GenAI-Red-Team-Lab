@@ -1,0 +1,25 @@
+# Stage 3: llama-index-core==0.14.21 + llama-index-workflows==2.14.0
+# data_sinks migrated AND patched in workflows v2.14.0
+# SimpleKVStore.persist() STILL VULNERABLE in core - NEVER fixed
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1
+ENV LAB_STAGE=3
+
+RUN apt-get update && apt-get install -y curl jq && rm -rf /var/lib/apt/lists/*
+
+# Install core and workflow packages
+RUN pip install --no-cache-dir llama-index-core==0.14.21 llama-index-workflows==2.14.0 flask
+
+# Create sandbox data directory
+RUN mkdir -p /app/sandbox_data
+
+# Copy server code
+COPY app/ /app/app/
+
+EXPOSE 8000
+
+ENTRYPOINT ["python", "-u", "/app/app/server.py"]
