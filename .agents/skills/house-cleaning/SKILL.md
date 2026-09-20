@@ -46,19 +46,27 @@ The following README files maintain indexes of sub-projects, sandboxes, exploits
 
 Every indexed item across all target README files must adhere to the following rules:
 
-1. **Length & Paragraph Constraint**:
+1. **Format & Structural Layout**:
+   - Each directory entry must be an item followed by an **indented paragraph** (not a subitem):
+     ```markdown
+     *   **`dir_name/`** (or `*   **[Title](path)**`)
+         [Indented summary paragraph]
+     ```
+   - **Not a subitem**: The summary must **never** be a bulleted subitem (do not use `*   summary` or `-   summary`). It must be an indented paragraph belonging to the parent list item.
+
+2. **Length & Paragraph Constraint**:
    - The description must be at most **400 characters**.
    - The description must fit into a **single paragraph** with **no line breaks** or nested bullet lists within the summary block.
 
-2. **No Redundant Prefixes**:
+3. **No Redundant Prefixes**:
    - The description must **not** start with `"Summary:"`, `"**Summary**:"`, or typographical variations (e.g., `"**Sumamary**:"`).
    - If present, remove the prefix entirely while preserving the rest of the text.
 
-3. **Standardized Security Taxonomies Only**:
+4. **Standardized Security Taxonomies Only**:
    - Index summaries should strictly use recognized industry-standard security identifiers (such as **CWE**, **CVE**, **OWASP**, and **MITRE ATLAS**).
    - Omit proprietary tracking codes, private advisory identifiers, and external paper citation clauses from index summaries; reserve detailed citations and disclosures for the sub-project's dedicated README.
 
-4. **Completeness / Synchronization**:
+5. **Completeness / Synchronization**:
    - Any subdirectories or tutorial documents in `sandboxes/`, `exploitation/`, or `tutorials/` must be cataloged in their respective section index and in the root `README.md`.
 
 ---
