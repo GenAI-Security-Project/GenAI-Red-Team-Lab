@@ -10,7 +10,8 @@ Audits and synchronizes index sections across repository README files:
 Enforces compliance rules:
   (a) Description must be at most 400 characters and a single paragraph (no line breaks).
   (b) Description must not start with "Summary:" or "**Summary**:" (or "**Sumamary**:").
-  (c) All sub-projects, sandboxes, exploits, and tutorials must be indexed.
+  (c) Description must only use standard security identifiers (CWE, CVE, OWASP) and omit non-standard advisory references.
+  (d) All sub-projects, sandboxes, exploits, and tutorials must be indexed.
 
 Usage:
   python3 clean_readme_indexes.py --check   # Audit only (returns non-zero exit code if issues found)
@@ -32,7 +33,7 @@ TARGET_FILES = {
     "tutorials": REPO_ROOT / "tutorials" / "README.md",
 }
 
-# Known curated compliant summaries (<= 400 chars, single paragraph, no Summary: prefix)
+# Known curated compliant summaries (<= 400 chars, single paragraph, no Summary prefix, standard taxonomies only)
 CURATED_SUMMARIES = {
     # Sandboxes
     "llm_local": (
@@ -74,19 +75,25 @@ CURATED_SUMMARIES = {
         "A containerized sandbox running Microsoft Semantic Kernel v1.48.0 demonstrating 6 active "
         "CVE-2026-25592 path traversal bypass techniques via Type Confusion (CWE-843). Features dual-mode "
         "operation (UNHARDENED/HARDENED) and demonstrates Commit fa2d52f6 Shell Blinding bypass where "
-        "cosmetic output masking fails to prevent file writes. Reference: JDP-2026-001 (CVSS 10.0 Critical)."
+        "cosmetic output masking fails to prevent file writes."
     ),
     "agentic_local_langchain": (
         "A containerized sandbox running LangChain-core (v1.2.24 through latest) demonstrating critical "
         "Insecure Orchestration vulnerabilities across 5 lifecycle stages. Demonstrates CVE-2026-34070 "
         "(path traversal), unpatched CVE-2023-36258 (symlink suffix bypass), and unpatched .save() write "
-        "primitives. Reference: JDP-2026-004 (CVSS 10.0 Critical)."
+        "primitives."
     ),
     "agentic_local_haystack": (
         "A containerized sandbox running Deepset Haystack (haystack-ai v2.27.0) demonstrating a critical "
         "Serialization Boundary Evasion vulnerability. Deserialization in default_from_dict() bypasses "
         "the unsafe=False boundary, enabling persistent RCE via Jinja2 SSTI breakout in OutputAdapter and "
-        "ConditionalRouter components. Reference: JDP-2026-005 (CVSS 10.0 Critical)."
+        "ConditionalRouter components."
+    ),
+    "agentic_local_llamaindex": (
+        "A containerized sandbox running llama-index-core (v0.14.19 through v0.14.21+) demonstrating critical "
+        "Insecure Orchestration vulnerabilities across 4 vendor response stages. Explores unpatched CWE-22 "
+        "path traversal in SimpleKVStore.persist(), StorageContext.persist() vectors, and incomplete vendor "
+        "remediation."
     ),
     # Exploitation
     "example": (
@@ -119,14 +126,31 @@ CURATED_SUMMARIES = {
         "(direct path traversal), unpatched CVE-2023-36258 (symlink suffix bypass), and unpatched .save() "
         "write primitives. Includes an interactive CLI trainer and audit report."
     ),
+    "llamaindex": (
+        "An interactive training wizard and verification suite demonstrating critical Insecure "
+        "Orchestration vulnerabilities in llama-index-core across 4 vendor response stages. Covers "
+        "unpatched CWE-22 path traversal in SimpleKVStore.persist() and StorageContext.persist(), plus "
+        "PyPI drift analysis. Includes an interactive CLI trainer and audit report."
+    ),
+    "recommendation_poisoning": (
+        "A complete, end-to-end example of a recommendation system memory poisoning attack. "
+        "Demonstrates how an attacker can manipulate conversational memory to bias subsequent "
+        "recommendations across user sessions."
+    ),
     # Tutorials
     "haystack_orchestration_security_tutorial.md": (
         "A comprehensive tutorial demonstrating Serialization Boundary Evasion in Deepset Haystack and "
         "persistent RCE via Jinja2 SSTI breakout."
     ),
+    "llamaindex_orchestration_security_tutorial.md": (
+        "A comprehensive tutorial analyzing unpatched Insecure Orchestration vulnerabilities in "
+        "llama-index-core, covering path traversal in SimpleKVStore.persist(), StorageContext.persist() "
+        "exploitation, and PyPI drift."
+    ),
 }
 
 PREFIX_REGEX = re.compile(r"^\s*(\*{0,2}Sum+a?m*ar?y\*{0,2}\s*:\s*)", re.IGNORECASE)
+NON_STANDARD_ADVISORY_REGEX = re.compile(r"\s*(?:[-—]\s*)?Reference:\s*.*JDP-.*$", re.IGNORECASE)
 
 
 def strip_summary_prefix(text: str) -> str:
@@ -134,14 +158,34 @@ def strip_summary_prefix(text: str) -> str:
     return PREFIX_REGEX.sub("", text).strip()
 
 
+def strip_advisory_references(text: str) -> str:
+    """Removes non-standard advisory references and citation clauses from text."""
+    if NON_STANDARD_ADVISORY_REGEX.search(text):
+        cleaned = NON_STANDARD_ADVISORY_REGEX.sub("", text).strip()
+        if cleaned and not cleaned.endswith((".", "!", "?")):
+            cleaned += "."
+        return cleaned
+    return text
+
+
+def clean_text(text: str) -> str:
+    """Applies all cleaning rules to a description string."""
+    text = strip_summary_prefix(text)
+    text = strip_advisory_references(text)
+    return text.strip()
+
+
 def is_compliant(text: str) -> tuple[bool, list[str]]:
     """Checks compliance against rules:
     (a) <= 400 chars, single paragraph (no line breaks)
     (b) Does not start with Summary: or **Summary**:
+    (c) Does not contain non-standard advisory references
     """
     reasons = []
     if PREFIX_REGEX.search(text):
         reasons.append("Starts with 'Summary:' or '**Summary**:' prefix")
+    if NON_STANDARD_ADVISORY_REGEX.search(text):
+        reasons.append("Contains non-standard advisory reference")
     if len(text) > 400:
         reasons.append(f"Exceeds 400 characters ({len(text)} chars)")
     if "\n" in text.strip():
@@ -179,16 +223,16 @@ def audit_and_fix_sandboxes_readme(apply_fix: bool) -> list[str]:
                 i += 1
                 full_desc += " " + lines[i].strip()
 
-            cleaned_desc = strip_summary_prefix(full_desc)
+            cleaned = clean_text(full_desc)
             if name in CURATED_SUMMARIES:
-                cleaned_desc = CURATED_SUMMARIES[name]
+                cleaned = CURATED_SUMMARIES[name]
 
-            compliant, reasons = is_compliant(cleaned_desc)
-            if not compliant or cleaned_desc != full_desc:
+            compliant, reasons = is_compliant(cleaned)
+            if not compliant or cleaned != full_desc:
                 issues.append(f"sandboxes/README.md [`{name}`]: {', '.join(reasons or ['Adjusted for compliance'])}")
 
             if apply_fix:
-                new_lines.append(f"*   **`{name}/`**: {cleaned_desc}")
+                new_lines.append(f"*   **`{name}/`**: {cleaned}")
             else:
                 new_lines.append(line)
         else:
@@ -242,16 +286,16 @@ def audit_and_fix_exploitation_readme(apply_fix: bool) -> list[str]:
                 i += 1
                 full_desc += " " + lines[i].strip()
 
-            cleaned_desc = strip_summary_prefix(full_desc)
+            cleaned = clean_text(full_desc)
             if name in CURATED_SUMMARIES:
-                cleaned_desc = CURATED_SUMMARIES[name]
+                cleaned = CURATED_SUMMARIES[name]
 
-            compliant, reasons = is_compliant(cleaned_desc)
-            if not compliant or cleaned_desc != full_desc:
+            compliant, reasons = is_compliant(cleaned)
+            if not compliant or cleaned != full_desc:
                 issues.append(f"exploitation/README.md [`{name}`]: {', '.join(reasons or ['Adjusted for compliance'])}")
 
             if apply_fix:
-                new_lines.append(f"*   **`{name}/`**: {cleaned_desc}")
+                new_lines.append(f"*   **`{name}/`**: {cleaned}")
             else:
                 new_lines.append(line)
         else:
@@ -301,17 +345,17 @@ def audit_and_fix_tutorials_readme(apply_fix: bool) -> list[str]:
         match = re.match(r"^(\s*-\s*\[([^\]]+)\]\(([^)]+)\)\s*—\s*)(.*)", line)
         if match:
             title, link, desc = match.group(2), match.group(3), match.group(4)
-            cleaned_desc = strip_summary_prefix(desc)
+            cleaned = clean_text(desc)
             item_key = link.split("/")[0] if "/" in link else link
             if item_key in CURATED_SUMMARIES:
-                cleaned_desc = CURATED_SUMMARIES[item_key]
+                cleaned = CURATED_SUMMARIES[item_key]
 
-            compliant, reasons = is_compliant(cleaned_desc)
-            if not compliant or cleaned_desc != desc:
+            compliant, reasons = is_compliant(cleaned)
+            if not compliant or cleaned != desc:
                 issues.append(f"tutorials/README.md [{title}]: {', '.join(reasons or ['Adjusted for compliance'])}")
 
             if apply_fix:
-                new_lines.append(f"- [{title}]({link}) — {cleaned_desc}")
+                new_lines.append(f"- [{title}]({link}) — {cleaned}")
             else:
                 new_lines.append(line)
         else:
@@ -398,11 +442,10 @@ def audit_and_fix_root_readme(apply_fix: bool) -> list[str]:
             if summary_bullet_match and not line.strip().startswith("*   **Sub-guides"):
                 raw_after_bullet = summary_bullet_match.group(1)
 
-                # Strip Summary: / **Summary**: / **Sumamary**:
-                cleaned_desc = strip_summary_prefix(raw_after_bullet)
+                cleaned = clean_text(raw_after_bullet)
 
                 # Collect continuation lines
-                full_desc = cleaned_desc
+                full_desc = cleaned
                 while i + 1 < len(lines) and lines[i + 1].startswith("        ") and not lines[i + 1].strip().startswith("*"):
                     i += 1
                     full_desc += " " + lines[i].strip()
@@ -414,28 +457,27 @@ def audit_and_fix_root_readme(apply_fix: bool) -> list[str]:
                 if key in CURATED_SUMMARIES:
                     full_desc = CURATED_SUMMARIES[key]
 
-                # If key has trailing paragraphs/bullet sections (e.g. agent0, semantickernel, langchain, haystack), skip them
-                if key in ("agent0", "semantickernel", "langchain", "haystack"):
+                full_desc = clean_text(full_desc)
+
+                # If key has trailing paragraphs/bullet sections (e.g. agent0, semantickernel, langchain, haystack, llamaindex), skip them
+                if key in ("agent0", "semantickernel", "langchain", "haystack", "llamaindex"):
                     while (
                         i + 1 < len(lines)
                         and not lines[i + 1].startswith("*   **[")
                         and not lines[i + 1].startswith("### ")
                         and not lines[i + 1].startswith("## ")
                     ):
-                        # Stop if we reach next item or section
                         if lines[i + 1].strip().startswith("*   **[") or lines[i + 1].startswith("### ") or lines[i + 1].startswith("## "):
                             break
-                        # Stop if it's an empty line followed by a new section or next item
                         if lines[i + 1].strip() == "" and i + 2 < len(lines) and (lines[i + 2].startswith("*   **[") or lines[i + 2].startswith("### ") or lines[i + 2].startswith("## ")):
                             break
                         i += 1
 
                 compliant, reasons = is_compliant(full_desc)
                 has_prefix = bool(PREFIX_REGEX.search(raw_after_bullet))
-                if has_prefix:
-                    reasons.append("Contains 'Summary:' prefix")
+                has_advisory_ref = bool(NON_STANDARD_ADVISORY_REGEX.search(raw_after_bullet))
 
-                if not compliant or has_prefix or full_desc != raw_after_bullet:
+                if not compliant or has_prefix or has_advisory_ref or full_desc != raw_after_bullet:
                     issues.append(f"README.md [{current_item}]: {', '.join(reasons or ['Adjusted for compliance'])}")
 
                 if apply_fix:
@@ -459,6 +501,18 @@ def audit_and_fix_root_readme(apply_fix: bool) -> list[str]:
             contrib_idx = next((idx for idx, l in enumerate(new_lines) if l.startswith("## Contribution Guide")), -1)
             if contrib_idx != -1:
                 new_lines.insert(contrib_idx, entry)
+            else:
+                new_lines.append(entry)
+
+        if "recommendation_poisoning" not in text_so_far:
+            entry = (
+                "\n*   **[Recommendation Memory Poisoning Exploit](exploitation/recommendation_poisoning/README.md)**\n"
+                "    *   A complete, end-to-end example of a recommendation system memory poisoning attack. "
+                "Demonstrates how an attacker can manipulate conversational memory to bias subsequent recommendations across user sessions.\n"
+            )
+            tut_idx = next((idx for idx, l in enumerate(new_lines) if l.startswith("### `tutorials/`")), -1)
+            if tut_idx != -1:
+                new_lines.insert(tut_idx - 1, entry)
             else:
                 new_lines.append(entry)
 

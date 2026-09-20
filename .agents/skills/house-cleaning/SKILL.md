@@ -54,7 +54,11 @@ Every indexed item across all target README files must adhere to the following r
    - The description must **not** start with `"Summary:"`, `"**Summary**:"`, or typographical variations (e.g., `"**Sumamary**:"`).
    - If present, remove the prefix entirely while preserving the rest of the text.
 
-3. **Completeness / Synchronization**:
+3. **Standardized Security Taxonomies Only**:
+   - Index summaries should strictly use recognized industry-standard security identifiers (such as **CWE**, **CVE**, **OWASP**, and **MITRE ATLAS**).
+   - Omit proprietary tracking codes, private advisory identifiers, and external paper citation clauses from index summaries; reserve detailed citations and disclosures for the sub-project's dedicated README.
+
+4. **Completeness / Synchronization**:
    - Any subdirectories or tutorial documents in `sandboxes/`, `exploitation/`, or `tutorials/` must be cataloged in their respective section index and in the root `README.md`.
 
 ---
