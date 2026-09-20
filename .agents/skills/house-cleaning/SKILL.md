@@ -71,6 +71,11 @@ Every indexed item across all target README files must adhere to the following r
 5. **Completeness / Synchronization**:
    - Any subdirectories or tutorial documents in `sandboxes/`, `exploitation/`, or `tutorials/` must be cataloged in their respective section index and in the root `README.md`.
 
+6. **Directory Structure Tree Synchronization**:
+   - The `## Directory Structure` code block in the root [`README.md`](../../README.md) must accurately reflect the repository layout up to depth 2 (including all sub-projects in `exploitation/`, `sandboxes/`, and tutorials/files in `tutorials/`).
+   - The tree must be kept up to date whenever new directories, sandboxes, exploits, or tutorials are added, renamed, or deleted.
+   - Standard format: Case-insensitive alphabetical sorting, standard tree glyphs (`├──`, `└──`, `│   `), excluding hidden files/directories (`.*`), caches (`__pycache__`), and virtual environments.
+
 ---
 
 ### Execution Procedures
@@ -80,10 +85,10 @@ Every indexed item across all target README files must adhere to the following r
 Use the dedicated Python helper script:
 
 ```bash
-# 1. Audit compliance and detect missing entries (dry-run / check mode):
+# 1. Audit compliance, missing entries, and directory structure tree (dry-run / check mode):
 python3 .agents/skills/house-cleaning/scripts/clean_readme_indexes.py --check
 
-# 2. Automatically apply fixes, strip prefixes, and insert missing entries:
+# 2. Automatically apply fixes, strip prefixes, insert missing entries, and synchronize tree:
 python3 .agents/skills/house-cleaning/scripts/clean_readme_indexes.py --fix
 ```
 
@@ -105,6 +110,10 @@ When auditing or adjusting entries manually:
    - List `.md` files and subdirectories in `tutorials/` (excluding `README.md`).
    - Ensure each tutorial is present in both `tutorials/README.md` and `README.md` under `### tutorials/`.
    - Ensure descriptions are $\le 400$ characters, single paragraph, without `Summary:` prefix.
+
+4. **Verify Root Directory Structure Tree**:
+   - Verify that the `## Directory Structure` text block in root `README.md` accurately reflects all current files and subdirectories in `exploitation/`, `sandboxes/`, and `tutorials/`.
+   - Ensure the tree is sorted alphabetically (case-insensitive) using standard tree glyphs (`├──`, `└──`, `│   `).
 
 ---
 
