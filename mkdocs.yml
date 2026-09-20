@@ -1,0 +1,56 @@
+site_name: GenAI Red Team Lab
+site_description: OWASP GenAI Security Project – Red Teaming Initiative companion lab
+site_url: https://genai-security-project.github.io/GenAI-Red-Team-Lab/
+repo_url: https://github.com/GenAI-Security-Project/GenAI-Red-Team-Lab
+repo_name: GenAI-Security-Project/GenAI-Red-Team-Lab
+
+theme:
+  name: material
+  palette:
+    # Light mode
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: ["."]
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - tables
+
+validation:
+  not_found: ignore
+
+nav:
+  - Home: index.md
