@@ -232,7 +232,7 @@ Every `/v1/*` route needs this header:
 Authorization: Bearer sk-mock-key
 ```
 
-`/health` does not. The key is not a secret — `make up` prints it, the clients hardcode it, and
+`/health` does not. The key is public by design: `make up` prints it, the clients hardcode it, and
 it is listed below under Notes.
 
 Point an OpenAI-compatible client at `http://localhost:8000/v1` with `sk-mock-key` as its API key.
@@ -241,7 +241,7 @@ What a request without a good header gets back:
 
 | Header sent | Response |
 |---|---|
-| none | `401 Missing Authorization header, expected: Bearer sk-mock-key` |
+| none | `401 Missing Authorization header` |
 | `Basic sk-mock-key` | `401 Invalid authentication scheme` |
 | `Bearer something-else` | `401 Invalid API key` |
 
