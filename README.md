@@ -49,7 +49,8 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── README.md
 │   ├── recommendation_poisoning
 │   ├── semantickernel
-│   └── system_reconnaissance
+│   ├── system_reconnaissance
+│   └── tenant_isolation
 ├── LICENSE
 ├── README.md
 ├── sandboxes
@@ -63,6 +64,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── llm_local_langchain_core_v1.2.4
 │   ├── llm_local_langflow_v1.0.12
 │   ├── llm_local_localAI_v2.17.1
+│   ├── llm_local_tenant_isolation
 │   ├── llm_memory_local
 │   ├── llm_remote
 │   ├── mcp_local
@@ -254,6 +256,11 @@ uv --version
     A local sandbox environment for testing conversation memory poisoning vulnerabilities. It demonstrates how an attacker can instruct an LLM to persist unscoped facts in SQLite memory, which systematically influences future sessions initiated by other users.
 
 
+
+*   **[Tenant Isolation Sandbox](sandboxes/llm_local_tenant_isolation/README.md)**
+
+    Tests model listing and invocation authorization across two synthetic tenants using vulnerable and hardened configurations.
+
 ### `exploitation/`
 
 *   **[Red Team Example](exploitation/example/README.md)**
@@ -345,6 +352,11 @@ uv --version
 
     A complete, end-to-end example of a recommendation system memory poisoning attack. Demonstrates how an attacker can manipulate conversational memory to bias subsequent recommendations across user sessions.
 
+
+
+*   **[Tenant Isolation Probe](exploitation/tenant_isolation/README.md)**
+
+    Runs local authorization checks against the tenant isolation sandbox and reports policy violations.
 
 ### `tutorials/`
 
