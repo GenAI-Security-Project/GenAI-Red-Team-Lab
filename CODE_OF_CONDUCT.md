@@ -13,9 +13,9 @@ Contributions must be strictly focused on advancing AI red teaming, security res
 *   **No Self-Promotion**: No self-promotion is allowed.
 *   **Vendor Neutrality**: No promotion of one's employer, commercial products, services, or companies is allowed.
 
-    Examples, sandboxes, and tutorials should not serve as marketing materials or product placement.
+    Tutorials, sandboxes, and exploitation examples should not serve as marketing materials or product placement.
     
-    Comparisons and evaluations that involve commercial products or companies must remain fair, objective, and reproducible.
+    Comparisons and evaluations that involve commercial products or companies must remain fair and objective.
 
 ## 2. Proper Attribution and Referencing
 
