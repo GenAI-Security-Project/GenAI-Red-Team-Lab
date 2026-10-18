@@ -17,7 +17,7 @@ graph LR
 
 ## External Packages and Materials
 
-We should avoid adding materials to the codebase that have not passed public scrutiny via reviews, issues, etc. External packages that have been added to this codebase before generally pass that filter, e.g. `garak` and `promptfoo`.
+We should avoid adding materials to the codebase that have not passed public scrutiny via reviews, issues, etc. External packages that have been added to this codebase, before, generally pass that filter, e.g. `garak` and `promptfoo`.
 
 ## Adding New Tutorials and Standalone Code Samples
 
