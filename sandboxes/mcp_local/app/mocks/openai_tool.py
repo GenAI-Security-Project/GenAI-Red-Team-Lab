@@ -4,6 +4,7 @@ This module provides a FastAPI router that mimics the OpenAI chat completions AP
 routing requests to a local Ollama instance for testing purposes.
 """
 
+import asyncio
 import json
 import os
 from typing import Any, Dict, List, Optional
@@ -27,8 +28,9 @@ router = APIRouter()
 
 # Initialize OpenAI client with Ollama backend
 MCP_SERVER_URL = os.getenv("MCP_SERVER_URL", "http://mcp_container:8000/sse")
-# Set a safety limit for recursive calls
-MAX_ITERATIONS = 5
+# Set a safety limit for recursive calls. A batch of tool calls can need
+# more than five rounds, so the budget is configurable.
+MAX_ITERATIONS = int(os.getenv("MAX_ITERATIONS", "10"))
 
 client = OpenAI(
     base_url=os.getenv("OLLAMA_BASE_URL", "http://host.containers.internal:11434/v1"),
@@ -54,7 +56,12 @@ async def chat_completions(
                     iterations += 1
 
                     # Ask LLM for response
-                    response = client.chat.completions.create(
+                    # The OpenAI client is synchronous. Calling it directly
+                    # blocks the event loop, so the MCP SSE session is not
+                    # served while the model generates and the connection
+                    # times out on slower models. Run it in a worker thread.
+                    response = await asyncio.to_thread(
+                        client.chat.completions.create,
                         model=request.model,
                         messages=request.messages,
                         temperature=request.temperature,
@@ -108,6 +115,11 @@ async def chat_completions(
                                     "content": f"Error executing tool: {str(tool_err)}",
                                 }
                             )
+
+                # Iteration budget exhausted. Return the last model message
+                # instead of falling through, which returned None and made
+                # the endpoint answer with an empty body.
+                return response
 
     except Exception as e:
         print(f"Workflow Error: {e}")
