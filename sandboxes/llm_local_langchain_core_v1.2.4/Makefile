@@ -69,7 +69,7 @@ ollama-pull:
 
 ollama-serve:
 	@echo "🔍 Checking if Ollama is running..."
-	@if lsof -Pi :11434 -sTCP:LISTEN -t >/dev/null 2>&1; then \
+	@if curl -sf http://localhost:11434/api/version >/dev/null 2>&1; then \
 		echo "✅ Ollama is already running on port 11434"; \
 	else \
 		echo "🚀 Starting Ollama server..."; \
@@ -90,7 +90,10 @@ mypy:
 
 test: sync lock clean ollama-pull ollama-serve build up
 	@echo "⏳ Waiting for server to start..."
-	@sleep 3
+	@for i in $$(seq 1 30); do \
+		curl -sf http://localhost:8000/health >/dev/null 2>&1 && break; \
+		sleep 1; \
+	done
 	@curl -s http://localhost:8000/health | grep ok && echo " ✅ Server is healthy!"
 
 test-client: sync lock clean ollama-pull ollama-serve build up test
