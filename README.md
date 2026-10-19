@@ -32,6 +32,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 ├── CONTRIBUTING.md
 ├── exploitation
 │   ├── AdversarialGenerator
+│   ├── agentic_bulk_delete
 │   ├── agent0
 │   ├── embedding_inversion
 │   ├── example
@@ -56,6 +57,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── agentic_local_haystack
 │   ├── agentic_local_langchain
 │   ├── agentic_local_llamaindex
+│   ├── agentic_local_mcp_customer_record
 │   ├── agentic_local_n8n_v1.65.0
 │   ├── agentic_local_semantickernel
 │   ├── llm_local
@@ -73,6 +75,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
     ├── evaluation_framework_passk
     ├── fake_testing_mode_prompt_injection_tutorial.md
     ├── haystack_orchestration_security_tutorial.md
+    ├── indirect_prompt_injection_customer_record.md
     ├── langchain_orchestration_poisoning_tutorial.md
     ├── llamaindex_orchestration_security_tutorial.md
     ├── llm_chatbot_system_prompt_exfiltration.md
@@ -204,6 +207,11 @@ uv --version
     A local sandbox environment incorporating the Model Context Protocol (MCP) to simulate tool integrations. It includes a mock API gateway using FastAPI, a mock MCP server, and Ollama integration to test agentic workflows and tool-calling behaviors.
 
 
+*   **[Agentic MCP Customer Record Sandbox](sandboxes/agentic_local_mcp_customer_record/README.md)**
+
+    A local refund-agent sandbox for measuring indirect prompt injection into destructive MCP calls. It includes trace-based scoring and independent least-privilege, trusted-scope, control-token, and out-of-band approval profiles.
+
+
 *   **[LangChain Local Sandbox (Vulnerable)](sandboxes/llm_local_langchain_core_v1.2.4/README.md)**
 
     A specialized local sandbox targeting LangGrinch (CVE-2025-68664), an insecure deserialization flaw in langchain-core v1.2.4. Mocks an OpenAI-compatible API backed by Ollama and includes a vulnerable client application demonstrating how prompt injection leads to credential exfiltration or Remote Code Execution (RCE) via unsafe object deserialization.
@@ -255,6 +263,10 @@ uv --version
 
 
 ### `exploitation/`
+
+*   **[Agentic Bulk Delete](exploitation/agentic_bulk_delete/README.md)**
+
+    A reproducible indirect prompt-injection corpus and evaluation harness for the customer-record sandbox. It validates payload provenance and hashes, measures executed, blocked, and resisted outcomes, and includes an offline deterministic replay.
 
 *   **[Red Team Example](exploitation/example/README.md)**
 
