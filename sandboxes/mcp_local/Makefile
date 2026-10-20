@@ -72,7 +72,7 @@ ollama-pull:
 
 ollama-serve:
 	@echo "🔍 Checking if Ollama is running..."
-	@if lsof -Pi :11434 -sTCP:LISTEN -t >/dev/null 2>&1; then \
+	@if curl -sf http://localhost:11434/api/version >/dev/null 2>&1; then \
 		echo "✅ Ollama is already running on port 11434"; \
 	else \
 		echo "🚀 Starting Ollama server..."; \
@@ -93,7 +93,10 @@ mypy:
 
 test: sync lock clean ollama-pull ollama-serve build up
 	@echo "⏳ Waiting for server to start..."
-	@sleep 3
+	@for i in $$(seq 1 30); do \
+		curl -sf http://localhost:8000/health >/dev/null 2>&1 && break; \
+		sleep 1; \
+	done
 	@curl -s http://localhost:8000/health | grep ok && echo " ✅ Server is healthy!"
 
 test-client: sync lock clean ollama-pull ollama-serve build up test
@@ -101,7 +104,12 @@ test-client: sync lock clean ollama-pull ollama-serve build up test
 
 test-mcp: sync lock clean ollama-pull ollama-serve build up test run-mcp
 	@echo "⏳ Waiting for MCP server and tool endpoint to be ready..."
-	@sleep 3
+	@for i in $$(seq 1 30); do \
+		podman exec app_container python -c \
+			"import socket; socket.create_connection(('mcp_container', 8000), 2)" \
+			>/dev/null 2>&1 && break; \
+		sleep 1; \
+	done
 	@echo "🧪 Running automated prompt tests against MCP server (tool calling)..."
 	podman exec -e OPENAI_BASE_URL="http://localhost:8000/v1/tool" app_container uv run python client/main.py
 
