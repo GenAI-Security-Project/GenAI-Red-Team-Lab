@@ -1,0 +1,42 @@
+FROM python:3.12-slim
+
+# Install uv (Python package manager)
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Allow connections through SSL-inspecting proxies
+ENV UV_INSECURE_HOST="pypi.org,files.pythonhosted.org"
+
+# Copy system requirements
+COPY packages.txt .
+
+# Install system dependencies
+RUN apt-get update && xargs -a packages.txt apt-get install -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user
+RUN useradd -m -u 1000 appuser
+
+# Set working directory
+WORKDIR /app
+
+# Change ownership of the working directory
+RUN chown appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Copy dependency files
+COPY --chown=appuser:appuser pyproject.toml uv.lock ./
+
+# Install dependencies
+RUN uv sync --frozen
+
+# Copy application code
+COPY --chown=appuser:appuser . .
+
+EXPOSE 8000
+
+# Run the FastAPI server with uvicorn. Set the mode in the image so archive or
+# cross-platform checkouts cannot silently drop the executable bit.
+COPY --chown=appuser:appuser --chmod=755 entrypoint.sh /app/entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
