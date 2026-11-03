@@ -1,0 +1,25 @@
+FROM python:3.12-slim
+
+# Install uv (Python package manager)
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Create a non-root user
+RUN useradd -m -u 1000 appuser
+
+WORKDIR /app
+RUN chown appuser:appuser /app
+USER appuser
+
+# Dependencies first, for layer caching
+COPY --chown=appuser:appuser pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
+
+# Application code: gateway (app/) and both MCP servers (servers/)
+COPY --chown=appuser:appuser . .
+
+# Gateway API (default entrypoint) and, when started with
+# `--entrypoint uv ... servers/serve.py`, the MCP servers' SSE endpoint.
+EXPOSE 8000
+
+COPY --chown=appuser:appuser --chmod=755 entrypoint.sh /app/entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]

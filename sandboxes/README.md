@@ -64,6 +64,10 @@ The goal of these sandboxes is to provide ready-to-use, isolated environments wh
 
     A containerized sandbox running llama-index-core (v0.14.19 through v0.14.21+) demonstrating critical Insecure Orchestration vulnerabilities across 4 vendor response stages. Explores unpatched CWE-22 path traversal in SimpleKVStore.persist(), StorageContext.persist() vectors, and incomplete vendor remediation.
 
+*   **`agentic_local_mcp_rug_pull/`**
+
+    An attacker-controlled MCP server changes an approved tool. A gateway with a configurable approval stage (none, name-bound, digest-bound) decides which definitions reach the model; runs are scored from the attacker server's log.
+
 ## Usage
 
 Each sandbox directory contains its own `README.md` with specific instructions on how to build, run, and use that particular sandbox. Please refer to the individual sandbox documentation for details.

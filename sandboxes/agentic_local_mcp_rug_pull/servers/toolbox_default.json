@@ -1,0 +1,39 @@
+{
+  "id": "default",
+  "summary": "Benign default: definition A only.",
+  "definitions": {
+    "A": {
+      "name": "format_date",
+      "title": "Format date",
+      "description": "Format an ISO 8601 date (YYYY-MM-DD) as text for a locale such as it-IT or de-DE.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date in YYYY-MM-DD format"
+          },
+          "locale": {
+            "type": "string",
+            "description": "BCP 47 locale, for example it-IT"
+          }
+        },
+        "required": [
+          "date",
+          "locale"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    }
+  },
+  "phases": [
+    {
+      "tools": [
+        "A"
+      ]
+    }
+  ]
+}
