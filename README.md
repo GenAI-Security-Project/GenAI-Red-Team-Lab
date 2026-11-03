@@ -42,6 +42,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── LangGrinch
 │   ├── llamaindex
 │   ├── LocalAI_v2.17.1
+│   ├── mcp_rug_pull
 │   ├── memory_poisoning
 │   ├── n8n_RCE_via_file_write
 │   ├── Ni8mare
@@ -56,6 +57,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── agentic_local_haystack
 │   ├── agentic_local_langchain
 │   ├── agentic_local_llamaindex
+│   ├── agentic_local_mcp_rug_pull
 │   ├── agentic_local_n8n_v1.65.0
 │   ├── agentic_local_semantickernel
 │   ├── llm_local
@@ -254,6 +256,11 @@ uv --version
     A local sandbox environment for testing conversation memory poisoning vulnerabilities. It demonstrates how an attacker can instruct an LLM to persist unscoped facts in SQLite memory, which systematically influences future sessions initiated by other users.
 
 
+*   **[Agentic MCP Rug Pull Sandbox](sandboxes/agentic_local_mcp_rug_pull/README.md)**
+
+    An attacker-controlled MCP server changes a tool after the user approves it. A configurable gateway (no approval, name-bound approval, digest-bound approval) sits between the agent and its MCP servers; success is scored from the arguments the attacker's server receives.
+
+
 ### `exploitation/`
 
 *   **[Red Team Example](exploitation/example/README.md)**
@@ -344,6 +351,11 @@ uv --version
 *   **[Recommendation Memory Poisoning Exploit](exploitation/recommendation_poisoning/README.md)**
 
     A complete, end-to-end example of a recommendation system memory poisoning attack. Demonstrates how an attacker can manipulate conversational memory to bias subsequent recommendations across user sessions.
+
+
+*   **[MCP Rug Pull](exploitation/mcp_rug_pull/README.md)**
+
+    Tool poisoning and rug pull from an attacker-controlled MCP server against the `agentic_local_mcp_rug_pull` sandbox, with no approval, name-bound and digest-bound approval. Includes a deterministic offline replay of the whole matrix.
 
 
 ### `tutorials/`
