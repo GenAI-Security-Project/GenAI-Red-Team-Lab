@@ -33,6 +33,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 ├── exploitation
 │   ├── AdversarialGenerator
 │   ├── agent0
+│   ├── agentic_skill_poisoning
 │   ├── embedding_inversion
 │   ├── example
 │   ├── garak
@@ -69,6 +70,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── RAG_local
 │   └── README.md
 └── tutorials
+    ├── agentic_skill_poisoning_tutorial.md
     ├── community_resources.md
     ├── evaluation_framework_passk
     ├── fake_testing_mode_prompt_injection_tutorial.md
@@ -346,6 +348,11 @@ uv --version
     A complete, end-to-end example of a recommendation system memory poisoning attack. Demonstrates how an attacker can manipulate conversational memory to bias subsequent recommendations across user sessions.
 
 
+*   **[Agentic Skill Poisoning](exploitation/agentic_skill_poisoning/README.md)**
+
+    A fully synthetic, offline lab where a poisoned agent skill (`SKILL.md`) hijacks a coding agent at load time via hidden instructions, unpinned `curl | sh` and `sudo` setup steps, and a rug pull. Scores four defenses from recorded traces. Maps to OWASP LLM03:2025, LLM01:2025, and Agentic Top 10 ASI04 and ASI01.
+
+
 ### `tutorials/`
 
 *   **[Community Resources for Agentic AI Red Teaming](tutorials/community_resources.md)**
@@ -401,6 +408,11 @@ uv --version
 *   **[Haystack Orchestration Security Tutorial](tutorials/haystack_orchestration_security_tutorial.md)**
 
     A comprehensive tutorial analyzing Serialization Boundary Evasion in Deepset Haystack (haystack-ai v2.27.0) and demonstrating persistent RCE via Jinja2 SSTI breakout.
+
+
+*   **[Agentic Skill Poisoning Tutorial](tutorials/agentic_skill_poisoning_tutorial.md)**
+
+    Walks through how a poisoned `SKILL.md` hijacks a coding agent and measures four defenses (defensive system prompt, static pre-load scanner, tool allowlist) against hidden instructions, unpinned install steps, and a rug pull. Shows why the static scanner alone is defeated by a post-install swap. Maps to OWASP LLM03:2025, LLM01:2025, ASI04, and ASI01.
 
 
 ## Contribution Guide
