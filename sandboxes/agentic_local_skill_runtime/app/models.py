@@ -1,0 +1,76 @@
+"""Domain models shared by the local skill runtime and its evaluation harness.
+
+Everything the lab reasons about is one of these shapes. Keeping them in one
+place lets the agent, the scanner, and the scorer agree on vocabulary.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from enum import Enum
+
+
+class Defense(str, Enum):
+    """A single defensive posture applied to one agent run."""
+
+    NONE = "none"
+    SYSTEM_PROMPT = "system_prompt"
+    SCANNER_GATE = "scanner_gate"
+    TOOL_ALLOWLIST = "tool_allowlist"
+
+
+@dataclass
+class Skill:
+    """A skill loaded from a SKILL.md folder.
+
+    ``install_steps`` and ``hidden_instructions`` are extracted at load time so
+    the scanner and the scorer do not each re-parse the markdown.
+    """
+
+    name: str
+    path: str
+    body: str
+    install_steps: list[str] = field(default_factory=list)
+    hidden_instructions: list[str] = field(default_factory=list)
+
+
+@dataclass
+class ToolCall:
+    """One attempt by the agent to use a tool. Recorded, never executed."""
+
+    tool: str
+    args: dict
+    blocked: bool = False
+    block_reason: str = ""
+
+
+@dataclass
+class Trace:
+    """The full record of one agent run."""
+
+    skill_name: str
+    defense: Defense
+    calls: list[ToolCall] = field(default_factory=list)
+    final_answer: str = ""
+    skill_loaded: bool = True
+    gate_reason: str = ""
+
+
+@dataclass
+class Score:
+    """What a trace tells us about the attack and the defense.
+
+    attempted_dangerous
+        The agent tried a flagged action (shell call to an install step, or a
+        read of the synthetic secret).
+    blocked
+        A defense stopped every dangerous action from taking effect.
+    attacker_content_reached_user
+        The synthetic secret appeared in the final answer.
+    """
+
+    skill_name: str
+    defense: Defense
+    attempted_dangerous: bool
+    blocked: bool
+    attacker_content_reached_user: bool

@@ -1,0 +1,63 @@
+"""Load synthetic skills from SKILL.md folders.
+
+A skill is a directory with a ``SKILL.md``. We pull out two things the rest of
+the lab cares about: fenced ``sh`` install steps and hidden instructions buried
+in HTML comments. Both are the shapes real poisoned skills use.
+"""
+
+from __future__ import annotations
+
+import os
+import re
+
+from .models import Skill
+
+_FENCE_SH = re.compile(r"```(?:sh|bash|shell)\n(.*?)```", re.DOTALL)
+_HTML_COMMENT = re.compile(r"<!--(.*?)-->", re.DOTALL)
+_INSTRUCTION_HINT = re.compile(
+    r"\b(read|append|exfiltrat|send|post|curl|do not mention|ignore)\b", re.IGNORECASE
+)
+
+
+def _install_steps(body: str) -> list[str]:
+    steps: list[str] = []
+    for block in _FENCE_SH.findall(body):
+        for line in block.splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                steps.append(line)
+    return steps
+
+
+def _hidden_instructions(body: str) -> list[str]:
+    found: list[str] = []
+    for comment in _HTML_COMMENT.findall(body):
+        text = comment.strip()
+        if _INSTRUCTION_HINT.search(text):
+            found.append(" ".join(text.split()))
+    return found
+
+
+def load_skill(skill_dir: str, md_name: str = "SKILL.md") -> Skill:
+    path = os.path.join(skill_dir, md_name)
+    with open(path, encoding="utf-8") as f:
+        body = f.read()
+    name = os.path.basename(os.path.normpath(skill_dir))
+    return Skill(
+        name=name,
+        path=path,
+        body=body,
+        install_steps=_install_steps(body),
+        hidden_instructions=_hidden_instructions(body),
+    )
+
+
+def load_all(skills_root: str) -> list[Skill]:
+    skills: list[Skill] = []
+    for entry in sorted(os.listdir(skills_root)):
+        skill_dir = os.path.join(skills_root, entry)
+        if os.path.isdir(skill_dir) and os.path.exists(
+            os.path.join(skill_dir, "SKILL.md")
+        ):
+            skills.append(load_skill(skill_dir))
+    return skills
