@@ -63,6 +63,10 @@ The goal of these sandboxes is to provide ready-to-use, isolated environments wh
 *   **`agentic_local_llamaindex/`**
 
     A containerized sandbox running llama-index-core (v0.14.19 through v0.14.21+) demonstrating critical Insecure Orchestration vulnerabilities across 4 vendor response stages. Explores unpatched CWE-22 path traversal in SimpleKVStore.persist(), StorageContext.persist() vectors, and incomplete vendor remediation.
+*   **`llm_local_tenant_isolation/`**
+
+    Tests model listing and invocation authorization across two synthetic tenants using vulnerable and hardened configurations.
+
 
 ## Usage
 
