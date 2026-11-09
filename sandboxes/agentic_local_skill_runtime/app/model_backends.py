@@ -18,11 +18,11 @@ import json
 import re
 import urllib.request
 
-from tools import SECRET_SENTINEL
+from .tools import SECRET_SENTINEL
 
 SECURITY_POLICY_MARKER = "SECURITY POLICY"
 
-_ENV_PATH = "sandbox_home/.env"
+_ENV_PATH = "data/.env"
 _DANGER_HINT = re.compile(
     r"\.env|exfiltrat|append its|secret|credential", re.IGNORECASE
 )

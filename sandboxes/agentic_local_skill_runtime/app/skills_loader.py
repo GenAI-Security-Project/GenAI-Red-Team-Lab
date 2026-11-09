@@ -10,7 +10,7 @@ from __future__ import annotations
 import os
 import re
 
-from models import Skill
+from .models import Skill
 
 _FENCE_SH = re.compile(r"```(?:sh|bash|shell)\n(.*?)```", re.DOTALL)
 _HTML_COMMENT = re.compile(r"<!--(.*?)-->", re.DOTALL)

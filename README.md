@@ -59,6 +59,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── agentic_local_llamaindex
 │   ├── agentic_local_n8n_v1.65.0
 │   ├── agentic_local_semantickernel
+│   ├── agentic_local_skill_runtime
 │   ├── llm_local
 │   ├── llm_local_InvokeAI_v5.3.0
 │   ├── llm_local_langchain_core_v1.2.4
@@ -256,6 +257,11 @@ uv --version
     A local sandbox environment for testing conversation memory poisoning vulnerabilities. It demonstrates how an attacker can instruct an LLM to persist unscoped facts in SQLite memory, which systematically influences future sessions initiated by other users.
 
 
+*   **[Agentic Local Skill Runtime](sandboxes/agentic_local_skill_runtime/README.md)**
+
+    A standard-library in-process runtime for evaluating skill-loading risks. It confines reads to synthetic data and records tool calls without executing shell commands; paired with the skill-poisoning evaluation harness.
+
+
 ### `exploitation/`
 
 *   **[Red Team Example](exploitation/example/README.md)**
@@ -350,7 +356,7 @@ uv --version
 
 *   **[Agentic Skill Poisoning](exploitation/agentic_skill_poisoning/README.md)**
 
-    A fully synthetic, offline lab where a poisoned agent skill (`SKILL.md`) hijacks a coding agent at load time via hidden instructions, unpinned `curl | sh` and `sudo` setup steps, and a rug pull. Scores four defenses from recorded traces. Maps to OWASP LLM03:2025, LLM01:2025, and Agentic Top 10 ASI04 and ASI01.
+    A fully synthetic, offline evaluation harness for hidden instructions, unpinned install steps, and rug-pull skills. The target agent runtime and synthetic filesystem are in `sandboxes/agentic_local_skill_runtime/`. Maps to OWASP LLM03:2025, LLM01:2025, ASI04, and ASI01.
 
 
 ### `tutorials/`
@@ -412,7 +418,7 @@ uv --version
 
 *   **[Agentic Skill Poisoning Tutorial](tutorials/agentic_skill_poisoning_tutorial.md)**
 
-    Walks through how a poisoned `SKILL.md` hijacks a coding agent and measures four defenses (defensive system prompt, static pre-load scanner, tool allowlist) against hidden instructions, unpinned install steps, and a rug pull. Shows why the static scanner alone is defeated by a post-install swap. Maps to OWASP LLM03:2025, LLM01:2025, ASI04, and ASI01.
+    Walks through how a poisoned `SKILL.md` hijacks a coding agent and measures four defenses against hidden instructions, unpinned install steps, and a rug pull. The runtime lives in `sandboxes/agentic_local_skill_runtime/`; the evaluation harness lives in `exploitation/agentic_skill_poisoning/`. Maps to OWASP LLM03:2025, LLM01:2025, ASI04, and ASI01.
 
 
 ## Contribution Guide

@@ -3,8 +3,10 @@
 Agent skills are folders with a `SKILL.md` that a coding agent loads and reads as
 instructions. They are now installed in bulk from public registries and GitHub.
 This tutorial walks through a synthetic, offline lab that models the risk and
-measures four defenses against it. The runnable code is in
-[`exploitation/agentic_skill_poisoning/`](../exploitation/agentic_skill_poisoning/README.md).
+measures four defenses against it. The harness is in
+[`exploitation/agentic_skill_poisoning/`](../exploitation/agentic_skill_poisoning/README.md),
+and its record-only target runtime is in
+[`sandboxes/agentic_local_skill_runtime/`](../sandboxes/agentic_local_skill_runtime/README.md).
 
 It maps to OWASP LLM03:2025 (Supply Chain), LLM01:2025 (Prompt Injection), and
 the OWASP Agentic Top 10 ASI04 (Agentic Supply Chain) and ASI01 (Agent Goal
@@ -91,7 +93,7 @@ The scripted model is a stand-in, chosen so the tests are deterministic and each
 defense shows a clear effect. A real model will comply with, or resist, these
 skills less cleanly, and the defensive system prompt in particular is only as
 good as the model behind it. Point the lab at an OpenAI-compatible endpoint
-(`backend = "http"` in `config.toml`) to measure a given model. The scanner is a
+(`backend = "http"` in `config/config.toml`) to measure a given model. The scanner is a
 simple pattern matcher and is easy to evade with obfuscation; treat it as a
 floor. The lab covers exfiltration and unvetted setup steps, not every skill
 abuse (for example, a skill that quietly weakens later code review).
@@ -100,6 +102,6 @@ abuse (for example, a skill that quietly weakens later code review).
 
 ```sh
 cd exploitation/agentic_skill_poisoning
-make test     # offline unit tests
-make attack   # the full matrix, writes report.json
+make test     # scanner and scoring unit tests
+make attack   # the full matrix, writes results/report.json and report.md
 ```

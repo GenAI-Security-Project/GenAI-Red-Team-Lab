@@ -1,4 +1,4 @@
-"""Domain model for the agentic skill-poisoning lab.
+"""Domain models shared by the local skill runtime and its evaluation harness.
 
 Everything the lab reasons about is one of these shapes. Keeping them in one
 place lets the agent, the scanner, and the scorer agree on vocabulary.
