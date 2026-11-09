@@ -21,43 +21,44 @@ The model calls return synthetic text. A 200 response represents an authorizatio
 
 Requires Python 3.9 or newer; no third-party packages.
 
+From the repository root, start the server:
+
 ```sh
 cd sandboxes/llm_local_tenant_isolation
 make test
 make run-local                         # hardened mode on 127.0.0.1:8765
 ```
 
-In another terminal, from the same directory:
+In a second terminal, from the repository root, run the probe:
 
 ```sh
+cd exploitation/tenant_isolation
 make attack
 ```
 
-To switch to the deliberately vulnerable mode, stop the local server and run:
-
-```sh
-make MODE=intentionally-vulnerable run-local
-# In the other terminal:
-make MODE=intentionally-vulnerable attack
-```
+To test the deliberately vulnerable mode, stop the local server, restart it
+with `make MODE=intentionally-vulnerable run-local` from the sandbox directory,
+and run `make MODE=intentionally-vulnerable attack` from the exploitation directory.
 
 The probe produces JSON with HTTP statuses, visible model identifiers and explicit policy-violation indicators. Its exit code is nonzero if observed behavior does not match the expected mode.
 
 ## Container run
 
-Requires Podman or Docker. By default the container starts in hardened mode and publishes its API to localhost only.
+Requires Podman or Docker. Run these commands from `exploitation/tenant_isolation`.
+The setup target builds and starts the sandbox, bound to localhost.
 
 ```sh
-make all
+make setup
 make attack
 make stop
 
-make MODE=intentionally-vulnerable all
+make MODE=intentionally-vulnerable setup
 make MODE=intentionally-vulnerable attack
 make stop
 ```
 
-Use `make CONTAINER=docker all` and `make CONTAINER=docker stop` with Docker. Stop the previous container before starting another mode.
+Use `make CONTAINER=docker setup` and `make CONTAINER=docker stop` with Docker.
+Stop the previous container before starting another mode.
 
 ## Files
 
