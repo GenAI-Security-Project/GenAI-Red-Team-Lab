@@ -1,0 +1,10 @@
+FROM python:3.12-slim
+
+WORKDIR /runtime
+COPY app/ ./app/
+COPY data/ ./data/
+RUN useradd --create-home --uid 10001 runtime \
+    && chown -R runtime:runtime /runtime
+USER runtime
+
+ENTRYPOINT ["python", "-m", "app.cli"]

@@ -22,7 +22,7 @@ from .tools import SECRET_SENTINEL
 
 SECURITY_POLICY_MARKER = "SECURITY POLICY"
 
-_ENV_PATH = "data/.env"
+_ENV_PATH = ".env"
 _DANGER_HINT = re.compile(
     r"\.env|exfiltrat|append its|secret|credential", re.IGNORECASE
 )

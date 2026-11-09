@@ -19,8 +19,11 @@ class TestToolRegistry(unittest.TestCase):
             outside.write_text("outside", encoding="utf-8")
             registry = ToolRegistry(sandbox_root=root)
 
-            self.assertEqual(registry.call("read_file", {"path": "inside.txt"}), "inside")
-            self.assertIn("no such file", registry.call("read_file", {"path": "../outside.txt"}))
+            self.assertEqual(
+                registry.call("read_file", {"path": "inside.txt"}), "inside"
+            )
+            outside_result = registry.call("read_file", {"path": "../outside.txt"})
+            self.assertIn("no such file", outside_result)
 
     def test_run_shell_only_records(self):
         registry = ToolRegistry(sandbox_root=Path("."))
