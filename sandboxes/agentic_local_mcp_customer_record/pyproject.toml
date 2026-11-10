@@ -1,0 +1,24 @@
+[project]
+name = "agentic-local-mcp-customer-record"
+version = "0.1.0"
+description = "Local MCP customer-record sandbox for indirect prompt-injection testing"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi[all]>=0.121.3",
+    "fastmcp>=2.14.4",
+    "mcp>=1.26.0",
+    "openai>=2.8.1",
+    "uvicorn>=0.38.0",
+]
+
+[dependency-groups]
+dev = [
+    "black",
+    "isort",
+    "mypy",
+    "pytest",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
