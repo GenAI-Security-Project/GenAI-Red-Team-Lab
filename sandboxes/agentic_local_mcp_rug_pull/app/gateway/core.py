@@ -61,7 +61,7 @@ class EventLog:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         record = {"t": time.time(), "event": event, **fields}
         with self.path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(record, sort_keys=True, ensure_ascii=False) + "\n")
+            handle.write(json.dumps(record, sort_keys=True) + "\n")
 
     def clear(self) -> None:
         self.path.unlink(missing_ok=True)

@@ -68,7 +68,7 @@ class Toolbox:
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
         record = {"t": time.time(), "event": event, "phase": self.phase, **fields}
         with self.log_path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(record, sort_keys=True, ensure_ascii=False) + "\n")
+            handle.write(json.dumps(record, sort_keys=True) + "\n")
 
     def _current(self) -> dict[str, Any]:
         return self.spec["phases"][self.phase]

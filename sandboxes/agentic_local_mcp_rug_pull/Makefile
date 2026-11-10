@@ -18,7 +18,7 @@ OLLAMA_MODEL ?= gpt-oss:20b
 OLLAMA_SERVE_HOST ?= 0.0.0.0
 OLLAMA_LOG ?= ollama.log
 OLLAMA_PID ?= .ollama.pid
-CURL := curl -sf --noproxy '*'
+CURL := curl -sf --noproxy '*' --max-time 5
 
 .PHONY: help install sync lock build up down stop test test-unit attack replay all format mypy ollama-pull ollama-serve ollama-stop
 
@@ -114,7 +114,7 @@ test-unit: sync
 	@if [ -d $(EXPLOIT_DIR) ]; then $(MAKE) -C $(EXPLOIT_DIR) test; fi
 
 attack: build up test
-	MODEL_BACKEND=$(MODEL_BACKEND) HOST_PORT=$(HOST_PORT) $(MAKE) -C $(EXPLOIT_DIR) attack
+	MODEL_BACKEND=$(MODEL_BACKEND) MODEL=$(OLLAMA_MODEL) HOST_PORT=$(HOST_PORT) $(MAKE) -C $(EXPLOIT_DIR) attack
 
 replay:
 	$(MAKE) -C $(EXPLOIT_DIR) replay
@@ -125,7 +125,7 @@ stop down:
 
 all: test-unit
 	status=0; \
-	{ $(MAKE) build up test && MODEL_BACKEND=$(MODEL_BACKEND) HOST_PORT=$(HOST_PORT) $(MAKE) -C $(EXPLOIT_DIR) attack; } || status=$$?; \
+	{ $(MAKE) build up test && MODEL_BACKEND=$(MODEL_BACKEND) MODEL=$(OLLAMA_MODEL) HOST_PORT=$(HOST_PORT) $(MAKE) -C $(EXPLOIT_DIR) attack; } || status=$$?; \
 	$(MAKE) stop; exit $$status
 
 format:
