@@ -78,9 +78,9 @@ build:
 up: ollama-serve
 	-$(PODMAN) rm -f $(GATEWAY_CONTAINER) $(TOOLBOX_CONTAINER) $(WORKSPACE_CONTAINER) 2>/dev/null || true
 	-$(PODMAN) network create --driver bridge $(NETWORK) 2>/dev/null || true
-	$(PODMAN) run -d --name $(WORKSPACE_CONTAINER) --network $(NETWORK) \
+	$(PODMAN) run -d --name $(WORKSPACE_CONTAINER) --network $(NETWORK) -e HOST=0.0.0.0 \
 		--entrypoint uv $(IMAGE) run --no-sync python servers/serve.py workspace
-	$(PODMAN) run -d --name $(TOOLBOX_CONTAINER) --network $(NETWORK) \
+	$(PODMAN) run -d --name $(TOOLBOX_CONTAINER) --network $(NETWORK) -e HOST=0.0.0.0 \
 		--entrypoint uv $(IMAGE) run --no-sync python servers/serve.py toolbox
 	$(PODMAN) run -d --name $(GATEWAY_CONTAINER) --network $(NETWORK) \
 		-p 127.0.0.1:$(HOST_PORT):8000 \

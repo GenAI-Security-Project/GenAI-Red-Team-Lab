@@ -125,7 +125,7 @@ if __name__ == "__main__":
     kind = sys.argv[1] if len(sys.argv) > 1 else ""
     uvicorn.run(
         build_app(kind),
-        host=os.getenv("HOST", "0.0.0.0"),
+        host=os.getenv("HOST", "127.0.0.1"),
         port=int(os.getenv("PORT", "8000")),
         log_level="warning",
     )

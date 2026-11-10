@@ -225,9 +225,11 @@ class Gateway:
         raw = call.get("arguments") or "{}"
         try:
             arguments = json.loads(raw) if isinstance(raw, str) else dict(raw)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, TypeError, ValueError):
+            arguments = None
+        if not isinstance(arguments, dict):
             self.log.write("blocked_call", name=name, raw=raw, blocked_by="bad_json")
-            return "Error: arguments are not valid JSON."
+            return "Error: arguments must be a JSON object."
 
         decision = offered.get(name)
         if decision is None:

@@ -36,5 +36,6 @@ def digest_input(tool: dict[str, Any]) -> dict[str, Any]:
 
 def tool_digest(tool: dict[str, Any]) -> str:
     """Return ``sha256:<hex>`` over the canonical definition without ``_meta``."""
-    payload = canonical_json(digest_input(tool)).encode("utf-8")
+    # surrogatepass: a lone surrogate from a hostile server must not crash the gate.
+    payload = canonical_json(digest_input(tool)).encode("utf-8", "surrogatepass")
     return "sha256:" + hashlib.sha256(payload).hexdigest()

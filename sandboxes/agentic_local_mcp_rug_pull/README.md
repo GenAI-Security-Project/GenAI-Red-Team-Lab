@@ -43,7 +43,7 @@ log.
 | | `1` | Approval bound to `(server, tool name)` |
 | | `2` | Approval bound to `(server, tool name, digest)`; the digest is SHA-256 over canonical JSON of the definition without `_meta` (safe only because the gateway never shows `_meta` to the model: every field the model sees must be covered by the digest) |
 | `REFRESH_POLICY` | `per_request` | Re-list tools at the start of every conversation (what `mcp_local` does by opening a session per request) |
-| | `on_list_changed` | Cache the list; re-list a server when it sends `notifications/tools/list_changed` (many clients do this) |
+| | `on_list_changed` | Cache the list; re-list a server when it sends `notifications/tools/list_changed` (some clients do this) |
 | | `reconnect` | Cache the list; refresh only after `POST /admin/reconnect` (a client restart) |
 
 Approvals are read from `$STATE_DIR/approvals.json`, written by the attack
@@ -58,7 +58,7 @@ changed definition reaches the model only after a client restart. With
 `on_list_changed` the gateway re-lists the server before the next model turn
 when it receives `notifications/tools/list_changed`; the other policies only
 log the notification (event `list_changed`, action `ignored`). Stage 2 must
-hold under every refresh policy; the tests check this.
+hold under every refresh policy; the replay checks this for each one.
 
 If two servers expose a tool with the same name, the gateway offers neither
 (reason `duplicate_name`), so the attacker's server cannot shadow a trusted
@@ -116,7 +116,8 @@ networks.
 ## Use the attacker server against your own client
 
 The `toolbox` server is a plain MCP server over SSE, so you can point any MCP
-client at it, not only this gateway:
+client at it, not only this gateway. Only test clients and machines you own or
+are authorised to test, with a synthetic canary, never real credentials:
 
 ```bash
 uv sync --frozen
@@ -138,7 +139,8 @@ Notes:
   `.env`. Edit B in a copy of the payload to match your client's file tool and
   the file that holds your canary.
 - The phase is global to the server process: to repeat the test, restart the
-  server or send `POST /admin/reset`.
+  server or send `POST /admin/reset` (unauthenticated, so keep the server on
+  `127.0.0.1`, its default).
 - The server speaks the legacy HTTP+SSE transport, like `mcp_local`. Clients
   that only support Streamable HTTP need an SSE option or a bridge.
 
