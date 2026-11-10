@@ -6,3 +6,6 @@ __pycache__/
 
 # Logs
 *.log
+
+# Ollama started by make ollama-serve
+.ollama.pid

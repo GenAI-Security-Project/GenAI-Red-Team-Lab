@@ -67,13 +67,13 @@ by exposing the same name. Look-alike names are out of scope for this lab.
 
 ## Run
 
-Prerequisites: Linux or WSL2, Podman, `uv`, Make; for live mode, Ollama with
-`gpt-oss:20b`.
+Prerequisites: Linux or WSL2, Podman, `uv`, Make, `curl`; for live mode,
+Ollama (`make ollama-pull` fetches `gpt-oss:20b`).
 
 ```bash
 make replay       # deterministic, no model and no containers
 make test-unit    # unit, live-SSE adapter and replay tests
-make ollama-pull
+make ollama-pull  # starts Ollama first if it is not running
 make build
 make up
 make test
@@ -93,12 +93,21 @@ behaves. Model behaviour is only measured by the live runs (`make attack`).
 deterministic scripted model instead of Ollama, to check the plumbing on a
 machine without a GPU.
 
-With Podman, the gateway reaches Ollama at `host.containers.internal:11434`,
-so Ollama must listen on more than `127.0.0.1` (for example
-`OLLAMA_HOST=0.0.0.0 ollama serve`; Ollama has no authentication, so keep
-port 11434 firewalled from other hosts), or set `OLLAMA_BASE_URL`. For an
-Ollama on another host, also set `OLLAMA_CHECK_URL` (the host-side check in
-`make up`, by default `http://localhost:11434/api/version`).
+With Podman, the gateway reaches Ollama at `host.containers.internal:11434`.
+`make up` runs `make ollama-serve`: if nothing answers at `OLLAMA_CHECK_URL`
+(default `http://localhost:11434/api/version`) it starts
+`OLLAMA_HOST=0.0.0.0 ollama serve` in the background, logs to `ollama.log`,
+and leaves it running after `make stop`; `make ollama-stop` stops it (and only
+it). Ollama has no authentication, so keep port 11434 firewalled from other
+hosts, or set `OLLAMA_SERVE_HOST` to an address only the containers can reach.
+
+An Ollama that is already running is used as it is. On Linux a systemd or
+manually started Ollama listens on `127.0.0.1` by default, which the
+containers cannot reach: `make test` reports it. Set `OLLAMA_HOST=0.0.0.0` for
+that service (for systemd, `systemctl edit ollama` and add
+`Environment="OLLAMA_HOST=0.0.0.0"`), or set `OLLAMA_BASE_URL`. For an Ollama
+on another host, set both `OLLAMA_BASE_URL` and `OLLAMA_CHECK_URL`; nothing is
+started locally then.
 
 The gateway binds to `127.0.0.1:8012` (`HOST_PORT`); both MCP servers are only
 on the private Podman network. Do not expose this sandbox to untrusted
