@@ -6,13 +6,6 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 # Allow connections through SSL-inspecting proxies
 ENV UV_INSECURE_HOST="pypi.org,files.pythonhosted.org"
 
-# Copy system requirements
-COPY packages.txt .
-
-# Install system dependencies
-RUN apt-get update && xargs -a packages.txt apt-get install -y --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
-
 # Create a non-root user
 RUN useradd -m -u 1000 appuser
 

@@ -66,8 +66,8 @@ test:
 	@$(PODMAN) exec $(AGENT_CONTAINER) python -c "import socket; socket.create_connection(('$(MCP_CONTAINER)', 8000), 2)"
 
 test-unit: sync
-	PYTHONPATH=.:../../exploitation/agentic_bulk_delete uv run pytest \
-		tests/ ../../exploitation/agentic_bulk_delete/tests/
+	uv run pytest tests/
+	$(MAKE) -C $(EXPLOIT_DIR) test
 
 test-container: build
 	PODMAN="$(PODMAN)" $(MAKE) -C $(EXPLOIT_DIR) test-container
