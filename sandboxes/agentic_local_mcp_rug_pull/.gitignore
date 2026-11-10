@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.env
+
+# Logs
+*.log
+
+# Ollama started by make ollama-serve
+.ollama.pid
