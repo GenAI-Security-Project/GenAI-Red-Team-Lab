@@ -76,6 +76,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
     ├── langchain_orchestration_poisoning_tutorial.md
     ├── llamaindex_orchestration_security_tutorial.md
     ├── llm_chatbot_system_prompt_exfiltration.md
+    ├── lsb_image_steganography
     ├── multi_technique_guardrail_bypass_evaluation.md
     ├── multi_turn_safety_bypass_and_system_role_override.md
     ├── README.md
@@ -401,6 +402,11 @@ uv --version
 *   **[Haystack Orchestration Security Tutorial](tutorials/haystack_orchestration_security_tutorial.md)**
 
     A comprehensive tutorial analyzing Serialization Boundary Evasion in Deepset Haystack (haystack-ai v2.27.0) and demonstrating persistent RCE via Jinja2 SSTI breakout.
+
+
+*   **[LSB Image Steganography Testing](tutorials/lsb_image_steganography/README.md)**
+
+    A hands-on tutorial and deterministic canary toolkit for testing multimodal GenAI pipelines against lossless PNG LSB steganography using Microsoft PyRIT and Pillow, mapped to OWASP LLM01:2025 and MITRE ATLAS.
 
 
 ## Contribution Guide
