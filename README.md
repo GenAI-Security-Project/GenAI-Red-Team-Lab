@@ -46,6 +46,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── n8n_RCE_via_file_write
 │   ├── Ni8mare
 │   ├── promptfoo
+│   ├── pyrit
 │   ├── README.md
 │   ├── recommendation_poisoning
 │   ├── semantickernel
@@ -274,6 +275,11 @@ uv --version
 *   **[Promptfoo Scanner Example](exploitation/promptfoo/README.md)**
 
     A powerful red teaming setup using [Promptfoo](https://www.promptfoo.dev/). It runs automated probes to identify vulnerabilities such as PII leakage and prompt injection, providing detailed reports and regression testing capabilities.
+
+
+*   **[PyRIT Converter & Multi-Turn Campaign](exploitation/pyrit/README.md)**
+
+    A complete, end-to-end example using [Microsoft PyRIT](https://github.com/Azure/PyRIT) (`pyrit>=1.2.0`) against local OpenAI-compatible sandboxes. Exercises lossless PNG LSB steganography, Cyrillic homoglyph substitution, character splitting, context wrapping, and multi-turn sequence delivery with deterministic `CANARY-*` tokens mapped to OWASP LLM01:2025 and MITRE ATLAS.
 
 
 *   **[System Reconnaissance](exploitation/system_reconnaissance/README.md)**
