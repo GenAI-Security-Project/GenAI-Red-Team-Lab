@@ -1,0 +1,29 @@
+[project]
+name = "rag-local-permissions"
+version = "0.1.0"
+description = "RAG sandbox for permissioned retrieval, revocation, answer caching, and content integrity testing"
+requires-python = ">=3.10"
+dependencies = [
+    "chromadb>=0.5.0",
+    "fastapi>=0.110.0",
+    "uvicorn>=0.29.0",
+    "httpx>=0.27.0",
+    "requests>=2.31.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "black>=24.0.0",
+    "isort>=5.13.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
