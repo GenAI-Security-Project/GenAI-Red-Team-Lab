@@ -15,22 +15,44 @@ instead of doing anything harmful.
 ## What the sandbox shows
 
 1. Token authentication is active. A control request without credentials gets
-   `401`.
-2. The same endpoint accepts an unauthenticated create-collection request when
-   it carries an `embedding_function` configuration.
-3. Chroma deserializes that configuration before calling the auth check, builds
-   the embedding function, and transformers imports the model module from
-   `auto_map`.
-4. The module writes `/evidence/marker.json`. The request then fails, but the
-   code already ran.
+   `401`/`403`.
+2. The same endpoint processes an unauthenticated create-collection request
+   when it carries an `embedding_function` configuration.
+3. With a public safetensors embedding model
+   (`sentence-transformers/all-MiniLM-L6-v2`), the server downloads and loads
+   the client-chosen model before the request is rejected by authentication.
+   The Hugging Face cache gains the model directory during the request.
+4. With a local `auto_map` model, transformers imports the model module, which
+   writes `/evidence/marker.json`, and only afterwards does the request fail.
 
 The finding is the execution order, not a missing authentication feature. The
 authentication exists; it runs too late.
+
+## RAG-specific reading
+
+The controlled object is the embedding function of the vector store, which
+decides how every chunk is vectorized and therefore what retrieval returns.
+An unauthenticated caller can pick that function and its model. In a RAG
+pipeline this is a retrieval-layer attack surface, not just a generic server
+bug: the same configuration also controls model downloads and resource use
+before any authorization decision.
+
+## Why a safetensors model cannot be the RCE proof
+
+Safetensors files contain no executable code, and models from established
+publishers do not ship `auto_map` code paths. A safetensors model therefore
+proves pre-auth model selection, download, and load, but not code execution.
+The code-execution proof needs a module that transformers imports under
+`trust_remote_code`, which is why the sandbox also ships a minimal local
+`auto_map` model that only writes a marker.
 
 ## Layout
 
 - `models/benign_autoload/`: minimal `auto_map` model. The `modeling_*` module
   writes the marker at import time. No weights, no network, no shell.
+- Safe HF model case: downloads `sentence-transformers/all-MiniLM-L6-v2`
+  (safetensors, public publisher) at request time to show pre-auth model
+  selection. Requires network access from the container.
 - `exploit/attack.py`: control request, exploit request, marker check.
 - `Makefile`: build, up, attack, stop.
 - `Containerfile`: Python 3.11, ChromaDB 1.5.9, CPU torch,
@@ -59,6 +81,8 @@ Expected output:
 
 ```text
 [PASS] authentication is enabled (control request) | 403 ...
+[PASS] safe HF model request is rejected by authentication | 403 ...
+[PASS] server loaded the client-chosen HF model before auth | models--sentence-transformers--all-MiniLM-L6-v2
 [PASS] unauthenticated request is rejected | 500 ...
 [PASS] model module executed before authentication
 marker: {"module": ".../modeling_benign.py", "pid": ..., "utc": "..."}
