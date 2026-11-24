@@ -1,0 +1,9 @@
+{
+  "architectures": ["BenignModel"],
+  "auto_map": {
+    "AutoConfig": "configuration_benign.BenignConfig",
+    "AutoModel": "modeling_benign.BenignModel"
+  },
+  "hidden_size": 8,
+  "model_type": "benign_autoload"
+}

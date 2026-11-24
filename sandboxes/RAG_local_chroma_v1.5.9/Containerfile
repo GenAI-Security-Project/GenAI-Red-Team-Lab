@@ -1,0 +1,23 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# CPU torch keeps the image small enough for a lab image.
+RUN pip install --no-cache-dir \
+    --index-url https://download.pytorch.org/whl/cpu \
+    torch==2.6.0
+
+RUN pip install --no-cache-dir \
+    "chromadb==1.5.9" \
+    fastapi \
+    uvicorn \
+    opentelemetry-instrumentation-fastapi \
+    sentence-transformers
+
+COPY models ./models
+COPY exploit ./exploit
+
+ENV PYTHONPATH=/app
+EXPOSE 8000
+
+CMD ["uvicorn", "chromadb.app:app", "--host", "0.0.0.0", "--port", "8000"]
