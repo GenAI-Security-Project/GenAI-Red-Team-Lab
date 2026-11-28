@@ -1,0 +1,9 @@
+[project]
+name = "agentic-local-skill-runtime"
+version = "0.1.0"
+description = "Record-only local runtime for synthetic agent skill evaluations"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.setuptools]
+packages = ["app"]

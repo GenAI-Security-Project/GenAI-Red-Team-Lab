@@ -8,6 +8,10 @@ The goal of these sandboxes is to provide ready-to-use, isolated environments wh
 
 ## Contents
 
+*   **`agentic_local_skill_runtime/`**
+
+    A standard-library, in-process agent runtime for safely evaluating skill-loading risks. It confines file reads to synthetic data and records tool calls without executing shell commands; paired with `exploitation/agentic_skill_poisoning/`.
+
 *   **`llm_local/`**
 
     A local sandbox environment that mocks an LLM API (compatible with OpenAI's interface) using a local model (via Ollama). Useful for testing client-side interactions, prompt injection, and security assessments without external paid APIs. Allows developers to customize the underlying LLM and orchestrate GenAI pipelines incorporating RAG and guardrails.
