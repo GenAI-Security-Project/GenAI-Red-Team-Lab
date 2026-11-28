@@ -73,6 +73,27 @@ With Docker instead of Podman:
 make PODMAN=docker all
 ```
 
+The published port binds to `127.0.0.1` on the host (see the `make up`
+target), so the vulnerable server and its unauthenticated exploit path are
+reachable only from the local machine.
+
+### Safe HF model case and offline runs
+
+The safe HF case downloads `sentence-transformers/all-MiniLM-L6-v2` from
+huggingface.co at request time, so it needs outbound network access from the
+container. To run offline, pre-seed a Hugging Face cache directory while
+online and mount it into the container:
+
+```bash
+make up HF_CACHE=$PWD/hf-cache
+```
+
+(`HF_CACHE` adds `-v <dir>:/root/.cache/huggingface/hub`.) On an
+already-seeded cache the fresh-download proof cannot repeat, so the attack
+script prints a `[SKIP]` line for that check; the pre-auth 401/403 check for
+the safe model still runs. Fully offline with no seeded cache, the download
+fails before the auth check and the two safe-case checks do not apply.
+
 The container sets `CHROMA_SERVER_AUTHN_PROVIDER` to the token provider,
 `CHROMA_SERVER_AUTHN_CREDENTIALS=test-token`, and mounts `./evidence` at
 `/evidence`.
@@ -115,9 +136,20 @@ lab intentionally does not.
 - This is not an "authentication disabled by default" lab. The auth provider is
   configured and enforced for requests that reach it.
 - Version pinned to 1.5.9, which the advisory lists as still vulnerable.
+- `trust_remote_code` is set only inside the exploit request body
+  (`exploit/attack.py`, `kwargs.trust_remote_code: true`). No environment
+  variable, image default, or server configuration enables it. The marker
+  module (`models/benign_autoload`) is reached only through that request:
+  transformers imports a local `auto_map` module solely when
+  `trust_remote_code=True` is passed for that specific load, so no other
+  configuration in this sandbox writes the marker.
 
 ## References
 
+- GHSA-f4j7-r4q5-qw2c (primary advisory, CVE-2026-45829):
+  https://github.com/advisories/GHSA-f4j7-r4q5-qw2c
+- NVD record, CVE-2026-45829:
+  https://nvd.nist.gov/vuln/detail/CVE-2026-45829
 - HiddenLayer, CVE-2026-45829 (ChromaToast):
   https://hadrian.io/vulnerability-alerts/cve-2026-45829----chromadb-python-server-hands-you-rce-before-it-asks-who-you-are
 - CSA research note:

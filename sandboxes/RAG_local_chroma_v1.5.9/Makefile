@@ -18,7 +18,7 @@ build:
 
 up:
 	@mkdir -p evidence
-	$(PODMAN) run -d --name $(CONTAINER) -p $(PORT):8000 \
+	$(PODMAN) run -d --name $(CONTAINER) -p 127.0.0.1:$(PORT):8000 \
 		-e CHROMA_SERVER_AUTHN_PROVIDER=$(AUTHN) \
 		-e CHROMA_SERVER_AUTHN_CREDENTIALS=$(TOKEN) \
 		-e CHROMA_AUTH_TOKEN_TRANSPORT_HEADER=Authorization \
