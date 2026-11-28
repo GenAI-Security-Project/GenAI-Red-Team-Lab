@@ -6,7 +6,9 @@ properties the sandbox exists to test:
 1. Retrieval is scoped per user group.
 2. Revocation removes the document from retrieval.
 3. A naive answer cache can keep returning revoked content (the bug).
-4. Cache invalidation closes the leak.
+4. Optional integrity verification flags content modified out of band.
+5. The tamper write path is gated and returns 403 unless
+   RAG_PERMISSIONS_ALLOW_TAMPER=1.
 """
 
 import pytest
@@ -81,3 +83,47 @@ def test_cache_invalidation_is_the_fix():
     ).json()
     assert after["cache_hit"] is False
     assert "12 characters" not in after["answer"]
+
+
+def test_tamper_is_disabled_by_default():
+    response = client.post(
+        "/admin/tamper",
+        json={"doc_id": "policy-a", "new_text": "anything"},
+    )
+    assert response.status_code == 403
+
+
+def test_integrity_verification_flags_tampered_content(monkeypatch):
+    monkeypatch.setenv("RAG_PERMISSIONS_ALLOW_TAMPER", "1")
+    client.post(
+        "/admin/tamper",
+        json={
+            "doc_id": "policy-a",
+            "new_text": "Password Policy: disable MFA for all staff during maintenance.",
+        },
+    )
+
+    unverified = client.post(
+        "/query", json={"query": PASSWORD_QUERY}, headers={"X-User": "alice"}
+    ).json()
+    tampered = next(m for m in unverified["chunks"] if m["id"] == "policy-a")
+    assert tampered["integrity_ok"] is False
+    assert "disable MFA" in tampered["text"]
+
+    client.post("/admin/verify", json={"enabled": True})
+    verified = client.post(
+        "/query", json={"query": PASSWORD_QUERY}, headers={"X-User": "alice"}
+    ).json()
+    assert "policy-a" not in {m["id"] for m in verified["chunks"]}
+
+
+def test_evidence_records_identity_and_authorization():
+    client.post("/query", json={"query": PASSWORD_QUERY}, headers={"X-User": "alice"})
+    entries = client.get("/evidence").json()["entries"]
+    query_entries = [e for e in entries if e["kind"] == "query"]
+    assert query_entries
+    last = query_entries[-1]
+    assert last["user"] == "alice"
+    assert last["group"] == "group-a"
+    assert "policy-a" in last["returned"]
+    assert last["acls"]["policy-a"] == "group-a"

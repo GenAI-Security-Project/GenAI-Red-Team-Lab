@@ -59,6 +59,38 @@ def main() -> int:
         not third["cache_hit"] and "12 characters" not in third["answer"],
     )
 
+    call("POST", "/admin/reset", params={"seed": True})
+    tamper_response = requests.post(
+        f"{BASE}/admin/tamper",
+        json={
+            "doc_id": "policy-a",
+            "new_text": "Password Policy: disable MFA for all staff during maintenance.",
+        },
+    )
+    if tamper_response.status_code == 403:
+        print(
+            "[SKIP] tamper checks (sandbox started without "
+            "RAG_PERMISSIONS_ALLOW_TAMPER=1, write path disabled)"
+        )
+    else:
+        tamper_response.raise_for_status()
+        unflagged = call("POST", "/query", user="alice", json=QUERY)
+        tampered = next(m for m in unflagged["chunks"] if m["id"] == "policy-a")
+        check(
+            "tampered content is retrievable without verification",
+            not tampered["integrity_ok"],
+        )
+
+        call("POST", "/admin/verify", json={"enabled": True})
+        flagged = call("POST", "/query", user="alice", json=QUERY)
+        check(
+            "integrity verification filters tampered content",
+            "policy-a" not in {m["id"] for m in flagged["chunks"]},
+        )
+
+    evidence = call("GET", "/evidence")
+    check("evidence log carries identity and authorization", evidence["count"] > 0)
+
     print(f"\n{globals()['FAILURES']} failure(s)")
     return 1 if globals()["FAILURES"] else 0
 
