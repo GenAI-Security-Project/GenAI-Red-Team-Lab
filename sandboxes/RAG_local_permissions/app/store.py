@@ -3,7 +3,7 @@
 Uses a local ChromaDB collection with string metadata only, so the sandbox
 runs without Ollama or any external embedding service. Embeddings are a
 deterministic hashed bag of words: good enough to test retrieval scoping,
-permissions, cache behaviour, and integrity checks, without model downloads.
+permissions, and cache behaviour, without model downloads.
 """
 
 import hashlib
@@ -28,12 +28,8 @@ def embed(text: str) -> List[float]:
     return [v / norm for v in vec]
 
 
-def sha256_of(text: str) -> str:
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
-
-
 class DocumentStore:
-    """Chroma-backed store with per-document ACL metadata and hashes."""
+    """Chroma-backed store with per-document ACL metadata."""
 
     def __init__(self, path: str = "./data/chromadb") -> None:
         self._client = chromadb.PersistentClient(path=path)
@@ -62,7 +58,6 @@ class DocumentStore:
                         "text": text,
                         "acl": doc.get("acl", ACL_ALL),
                         "source": doc.get("source", "synthetic"),
-                        "sha256": sha256_of(text),
                     }
                 )
             self._collection.upsert(
@@ -84,30 +79,6 @@ class DocumentStore:
             meta = dict(meta)
             meta["acl"] = acl
             self._collection.update(ids=[doc_id], metadatas=[meta])
-            return True
-
-    def tamper(self, doc_id: str, new_text: str) -> bool:
-        """Replace stored text without updating the recorded hash.
-
-        Simulates a write that bypasses the ingestion path (for example a
-        direct vector DB write). The stored sha256 no longer matches.
-        """
-        with self._lock:
-            res = self._collection.get(
-                ids=[doc_id], include=["metadatas", "embeddings"]
-            )
-            metas = res.get("metadatas") or []
-            embeddings = res.get("embeddings")
-            if not metas or embeddings is None:
-                return False
-            meta = dict(metas[0])
-            meta["text"] = new_text
-            self._collection.update(
-                ids=[doc_id],
-                embeddings=[list(embeddings[0])],
-                documents=[new_text],
-                metadatas=[meta],
-            )
             return True
 
     def query(
@@ -133,9 +104,6 @@ class DocumentStore:
                     "score": 1.0 - float(dist),
                     "acl": meta.get("acl"),
                     "text": meta.get("text", ""),
-                    "sha256": meta.get("sha256"),
-                    "integrity_ok": meta.get("sha256")
-                    == sha256_of(meta.get("text", "")),
                 }
             )
         return matches

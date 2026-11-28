@@ -1,12 +1,11 @@
 """RAG permissions sandbox: FastAPI app.
 
 Models a retrieval-augmented assistant with per-user groups, document ACLs,
-access revocation, a naive answer cache, and optional content-integrity
-verification. The point of the sandbox is to make "respects source
-permissions" a testable property, including after revocation.
+access revocation, and a naive answer cache. The point of the sandbox is to
+make "respects source permissions" a testable property, including after
+revocation.
 """
 
-import time
 from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, Header, HTTPException
@@ -45,15 +44,11 @@ store = DocumentStore()
 class ChatState:
     def __init__(self) -> None:
         self.cache_enabled = True
-        self.verify_integrity = False
         self.answer_cache: Dict[Any, str] = {}
-        self.evidence: List[Dict[str, Any]] = []
 
     def clear(self) -> None:
         self.cache_enabled = True
-        self.verify_integrity = False
         self.answer_cache.clear()
-        self.evidence.clear()
 
 
 state = ChatState()
@@ -80,11 +75,6 @@ class RevokeRequest(BaseModel):
     acl: str = "revoked"
 
 
-class TamperRequest(BaseModel):
-    doc_id: str
-    new_text: str
-
-
 class ToggleRequest(BaseModel):
     enabled: bool
 
@@ -94,11 +84,6 @@ def _group_of(user: str) -> str:
     if not group:
         raise HTTPException(status_code=401, detail="Unknown user")
     return group
-
-
-def _record(**fields: Any) -> None:
-    fields["ts"] = time.time()
-    state.evidence.append(fields)
 
 
 @app.get("/health")
@@ -129,14 +114,6 @@ def revoke(request: RevokeRequest) -> Dict[str, Any]:
     return {"doc_id": request.doc_id, "acl": request.acl}
 
 
-@app.post("/admin/tamper")
-def tamper(request: TamperRequest) -> Dict[str, Any]:
-    ok = store.tamper(request.doc_id, request.new_text)
-    if not ok:
-        raise HTTPException(status_code=404, detail="Document not found")
-    return {"doc_id": request.doc_id, "tampered": True}
-
-
 @app.post("/admin/cache")
 def set_cache(request: ToggleRequest) -> Dict[str, Any]:
     state.cache_enabled = request.enabled
@@ -145,33 +122,11 @@ def set_cache(request: ToggleRequest) -> Dict[str, Any]:
     return {"cache_enabled": state.cache_enabled}
 
 
-@app.post("/admin/verify")
-def set_verify(request: ToggleRequest) -> Dict[str, Any]:
-    state.verify_integrity = request.enabled
-    return {"verify_integrity": state.verify_integrity}
-
-
-@app.get("/evidence")
-def evidence() -> Dict[str, Any]:
-    return {"count": len(state.evidence), "entries": state.evidence}
-
-
 @app.post("/query")
 def query(request: QueryRequest, x_user: str = Header(...)) -> Dict[str, Any]:
     """Retrieval-only endpoint. Returns chunks plus the authorization trail."""
     group = _group_of(x_user)
     matches = store.query(request.query, [group], request.top_k)
-    if state.verify_integrity:
-        matches = [m for m in matches if m["integrity_ok"]]
-    _record(
-        kind="query",
-        user=x_user,
-        group=group,
-        query=request.query,
-        returned=[m["id"] for m in matches],
-        acls={m["id"]: m["acl"] for m in matches},
-        integrity={m["id"]: m["integrity_ok"] for m in matches},
-    )
     return {
         "user": x_user,
         "group": group,
@@ -193,19 +148,9 @@ def chat(request: QueryRequest, x_user: str = Header(...)) -> Dict[str, Any]:
 
     if state.cache_enabled and cache_key in state.answer_cache:
         answer = state.answer_cache[cache_key]
-        _record(
-            kind="chat",
-            user=x_user,
-            group=group,
-            query=request.query,
-            cache_hit=True,
-            answer_chars=len(answer),
-        )
         return {"user": x_user, "answer": answer, "cache_hit": True}
 
     matches = store.query(request.query, [group], request.top_k)
-    if state.verify_integrity:
-        matches = [m for m in matches if m["integrity_ok"]]
     context = " ".join(m["text"] for m in matches)
     answer = (
         f"According to the retrieved policy: {context}"
@@ -215,15 +160,6 @@ def chat(request: QueryRequest, x_user: str = Header(...)) -> Dict[str, Any]:
     if state.cache_enabled:
         state.answer_cache[cache_key] = answer
 
-    _record(
-        kind="chat",
-        user=x_user,
-        group=group,
-        query=request.query,
-        cache_hit=False,
-        returned=[m["id"] for m in matches],
-        answer_chars=len(answer),
-    )
     return {
         "user": x_user,
         "answer": answer,
