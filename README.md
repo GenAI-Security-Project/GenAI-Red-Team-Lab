@@ -50,7 +50,8 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── README.md
 │   ├── recommendation_poisoning
 │   ├── semantickernel
-│   └── system_reconnaissance
+│   ├── system_reconnaissance
+│   └── tenant_isolation
 ├── LICENSE
 ├── README.md
 ├── sandboxes
@@ -65,6 +66,7 @@ The [Legacy Repository](https://github.com/OWASP/www-project-top-10-for-large-la
 │   ├── llm_local_langchain_core_v1.2.4
 │   ├── llm_local_langflow_v1.0.12
 │   ├── llm_local_localAI_v2.17.1
+│   ├── llm_local_tenant_isolation
 │   ├── llm_memory_local
 │   ├── llm_remote
 │   ├── mcp_local
@@ -262,6 +264,10 @@ uv --version
     A standard-library in-process runtime for evaluating skill-loading risks. It confines reads to synthetic data and records tool calls without executing shell commands; paired with the skill-poisoning evaluation harness.
 
 
+*   **[Tenant Isolation Sandbox](sandboxes/llm_local_tenant_isolation/README.md)**
+
+    Tests model listing and invocation authorization across two synthetic tenants using vulnerable and hardened configurations.
+
 ### `exploitation/`
 
 *   **[Red Team Example](exploitation/example/README.md)**
@@ -358,6 +364,10 @@ uv --version
 
     A fully synthetic, offline evaluation harness for hidden instructions, unpinned install steps, and rug-pull skills. The target agent runtime and synthetic filesystem are in `sandboxes/agentic_local_skill_runtime/`. Maps to OWASP LLM03:2025, LLM01:2025, ASI04, and ASI01.
 
+
+*   **[Tenant Isolation Probe](exploitation/tenant_isolation/README.md)**
+
+    Runs local authorization checks against the tenant isolation sandbox and reports policy violations.
 
 ### `tutorials/`
 
