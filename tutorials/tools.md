@@ -41,6 +41,7 @@ See below for a list of tools that can be used for AI red teaming, organized by 
 | | LLM recon/evals (optional): [PyRIT](https://github.com/microsoft/pyrit), [Promptfoo](https://www.promptfoo.dev/), [Garak](https://github.com/NVIDIA/garak), Deepteam, Spikee |
 | **Phase 4: Exploitation** | [CleverHans](https://github.com/cleverhans-lab/cleverhans): Helps generating adversarial examples and attacks on AI models |
 || [Agent0](https://github.com/agent0ai/agent-zero): Containerized Agentic System based on Kali Linux. See the examples in [GenAI-Red-Team-Lab/exploitation/agent0](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Lab/tree/main/exploitation/agent0) |
+| | [PyRIT](https://github.com/microsoft/PyRIT): Microsoft Python Risk Identification Tool for generative AI converter chaining and multi-turn red teaming. See [GenAI-Red-Team-Lab/exploitation/pyrit](https://github.com/GenAI-Security-Project/GenAI-Red-Team-Lab/tree/main/exploitation/pyrit) |
 | | [AgentDojo](https://github.com/ethz-spylab/agentdojo): Framework for prompt-injection attacks (and defenses) against tool-using LLM agents |
 | | [llm-attacks (GCG)](https://github.com/llm-attacks/llm-attacks): Generates universal, transferable adversarial suffixes against LLMs via Greedy Coordinate Gradient |
 | **Phase 5: Persistence & Escalation** | [LLMGuard](https://github.com/LLMGuard/LLMGuard), [Giskard](https://github.com/Giskard-AI/giskard), or [Garak](https://github.com/NVIDIA/garak) for continuous guardrail validation |
