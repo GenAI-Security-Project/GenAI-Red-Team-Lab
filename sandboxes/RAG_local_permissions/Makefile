@@ -15,7 +15,7 @@ build:
 	$(PODMAN) build -t $(IMAGE) -f Containerfile .
 
 up:
-	$(PODMAN) run -d --name $(CONTAINER) -p $(PORT):8000 $(IMAGE)
+	$(PODMAN) run -d --name $(CONTAINER) -p 127.0.0.1:$(PORT):8000 $(IMAGE)
 
 stop:
 	-$(PODMAN) stop $(CONTAINER)
