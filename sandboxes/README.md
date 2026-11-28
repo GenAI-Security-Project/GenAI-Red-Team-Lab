@@ -24,6 +24,10 @@ The goal of these sandboxes is to provide ready-to-use, isolated environments wh
 
     A local sandbox environment incorporating the Model Context Protocol (MCP) to simulate tool integrations. It includes a mock API gateway using FastAPI, a mock MCP server, and Ollama integration to test agentic workflows and tool-calling behaviors.
 
+*   **`agentic_local_mcp_customer_record/`**
+
+    A local refund-agent sandbox for measuring indirect prompt injection into a destructive customer-record tool. It scores tool traces and compares control-token filtering with least privilege, trusted service-side scope, and out-of-band bulk approval.
+
 *   **`llm_local_langchain_core_v1.2.4/`**
 
     A specialized local sandbox targeting LangGrinch (CVE-2025-68664), an insecure deserialization flaw in langchain-core v1.2.4. Mocks an OpenAI-compatible API backed by Ollama and includes a vulnerable client application demonstrating how prompt injection leads to credential exfiltration or Remote Code Execution (RCE) via unsafe object deserialization.
