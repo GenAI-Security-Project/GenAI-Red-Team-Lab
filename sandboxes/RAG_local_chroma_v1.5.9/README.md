@@ -94,6 +94,11 @@ script prints a `[SKIP]` line for that check; the pre-auth 401/403 check for
 the safe model still runs. Fully offline with no seeded cache, the download
 fails before the auth check and the two safe-case checks do not apply.
 
+`make attack` is single-shot: the marker is written at module import time, so
+re-running the attack against the same container reports the marker check as
+`FAIL` because Python has already imported the module. `make down && make up`
+for a fresh run.
+
 The container sets `CHROMA_SERVER_AUTHN_PROVIDER` to the token provider,
 `CHROMA_SERVER_AUTHN_CREDENTIALS=test-token`, and mounts `./evidence` at
 `/evidence`.
